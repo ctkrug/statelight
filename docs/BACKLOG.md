@@ -46,22 +46,26 @@ as the machine moves through it live.
 
 ## Epic 2 — Panel ergonomics
 
-### [ ] 2.1 Collapse/expand the panel
+### [x] 2.1 Collapse/expand the panel
 
-- [ ] Clicking the header toggles the panel between full view and a
-      header-only collapsed state.
-- [ ] While collapsed, a new transition shows an unread indicator (e.g. a
+- [x] Clicking the collapse toggle in the header switches the panel
+      between full view and a header-only collapsed state. (Deviation from
+      the original "clicking the header toggles" wording: the header is
+      also the 2.2 drag handle, so a dedicated toggle button avoids the
+      classic click-vs-drag ambiguity bug rather than needing a
+      move-distance threshold to disambiguate the two gestures.)
+- [x] While collapsed, a new transition shows an unread indicator (e.g. a
       dot) on the header.
-- [ ] Collapsed/expanded state persists across a page reload via
+- [x] Collapsed/expanded state persists across a page reload via
       `localStorage`.
 
-### [ ] 2.2 Drag to reposition the panel
+### [x] 2.2 Drag to reposition the panel
 
-- [ ] Dragging the header moves the panel anywhere within the viewport
+- [x] Dragging the header moves the panel anywhere within the viewport
       (clamped so it can't be dragged fully off-screen).
-- [ ] The dragged position persists across a page reload via
+- [x] The dragged position persists across a page reload via
       `localStorage`.
-- [ ] Dragging the header does not trigger text selection on the page
+- [x] Dragging the header does not trigger text selection on the page
       behind it.
 
 ### [ ] 2.3 Support multiple machines on one page
@@ -71,14 +75,14 @@ as the machine moves through it live.
 - [ ] Calling `detach()` on one handle removes only its panel and leaves
       the other machine's panel and watcher fully functional.
 
-### [ ] 2.4 Design polish — themed states for every new control
+### [x] 2.4 Design polish — themed states for every new control
 
-- [ ] The collapse toggle and drag handle each have distinct hover,
+- [x] The collapse toggle and drag handle each have distinct hover,
       focus-visible, and active states per `docs/DESIGN.md` — no naked
       default button/cursor styling.
-- [ ] Keyboard users can reach and activate the collapse toggle (drag is
+- [x] Keyboard users can reach and activate the collapse toggle (drag is
       mouse/touch-only, which is acceptable for a dev-tool panel, but
-      collapse must not be mouse-only).
+      collapse must not be mouse-only) — it's a real `<button>`.
 
 ## Epic 3 — Distribution & demo site
 
