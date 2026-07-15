@@ -40,8 +40,11 @@ export function watch(target, key, options = {}) {
 
       const entry = { state: next, from: prev, at: now(), event: options.eventName || null };
       history.push(entry);
-      if (options.historyLimit && history.length > options.historyLimit) {
-        history.shift();
+      // >= 0, not truthy: a caller passing historyLimit: 0 means "keep no
+      // backlog", not "no limit" — the previous truthy check treated 0 the
+      // same as omitted and grew history without bound.
+      if (options.historyLimit >= 0) {
+        while (history.length > Math.max(options.historyLimit, 1)) history.shift();
       }
       for (const listener of listeners) listener(entry);
     }
