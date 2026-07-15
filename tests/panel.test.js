@@ -224,6 +224,42 @@ test('a dragged position persists across panels sharing a label via localStorage
   });
 });
 
+test('multiple default-position panels cascade instead of stacking exactly on top of each other', async () => {
+  await withDom(async (dom) => {
+    const { createPanel } = await import('../src/panel.js');
+    const a = createPanel({ label: 'machine-a' });
+    a.mount(dom.window.document.body);
+    const b = createPanel({ label: 'machine-b' });
+    b.mount(dom.window.document.body);
+
+    assert.equal(a.el.style.getPropertyValue('--sl-stack-offset'), '');
+    assert.notEqual(b.el.style.getPropertyValue('--sl-stack-offset'), '');
+
+    a.destroy();
+    b.destroy();
+  });
+});
+
+test('a reused stack slot is offset the same as the panel that released it', async () => {
+  await withDom(async (dom) => {
+    const { createPanel } = await import('../src/panel.js');
+    const a = createPanel({ label: 'machine-a' });
+    a.mount(dom.window.document.body);
+    const b = createPanel({ label: 'machine-b' });
+    b.mount(dom.window.document.body);
+    const bOffset = b.el.style.getPropertyValue('--sl-stack-offset');
+
+    b.destroy();
+
+    const c = createPanel({ label: 'machine-c' });
+    c.mount(dom.window.document.body);
+    assert.equal(c.el.style.getPropertyValue('--sl-stack-offset'), bOffset);
+
+    a.destroy();
+    c.destroy();
+  });
+});
+
 test('createPanel with a transitions option renders the graph and highlights on update', async () => {
   await withDom(async (dom) => {
     const { createPanel } = await import('../src/panel.js');
