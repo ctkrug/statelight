@@ -35,10 +35,17 @@ export function buildTransitionGraph(transitions = {}) {
 
 /**
  * Builds the stable identifier used to key an edge's DOM element and to
- * match a live transition back to the edge it traversed.
+ * match a live transition back to the edge it traversed. Each segment has
+ * its own "::" escaped first so a state/event name that itself contains
+ * "::" (e.g. a namespaced state like "auth::loggedIn") can't join into the
+ * same raw string as an unrelated edge.
  */
 export function edgeIdFor(from, event, to) {
-  return `${from}::${event}::${to}`;
+  return [from, event, to].map(escapeIdSegment).join('::');
+}
+
+function escapeIdSegment(part) {
+  return String(part).replace(/:/g, '%3A');
 }
 
 const DEFAULT_NODE_RADIUS = 28;
