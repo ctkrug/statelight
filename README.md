@@ -38,10 +38,20 @@ property somewhere."
       `localStorage`.
 - [x] Multi-machine support — `attach()` more than one state machine on
       the same page; panels cascade by default and detach independently.
-- [ ] Public demo site with an interactive example machine.
+- [x] Public demo site with an interactive example machine — see `site/`.
 
 See [`docs/VISION.md`](docs/VISION.md) for the full design rationale and
 [`docs/BACKLOG.md`](docs/BACKLOG.md) for the build plan.
+
+## Demo site
+
+`site/index.html` is a self-contained landing page with a real, running
+Statelight instance as its hero — not a screenshot. Open it via a local
+static server (it uses ES module imports, so `file://` won't work):
+
+```sh
+npx serve site
+```
 
 ## Usage
 
