@@ -121,7 +121,9 @@ export function createGraphView(transitions) {
    */
   function highlight(entry) {
     if (currentNodeEl) currentNodeEl.classList.remove('is-current');
-    currentNodeEl = nodeEls.get(entry.state) || null;
+    // Node ids are always strings (see buildTransitionGraph); a live entry
+    // carries the machine's raw value type, so normalize before lookup.
+    currentNodeEl = nodeEls.get(String(entry.state)) || null;
     if (currentNodeEl) currentNodeEl.classList.add('is-current');
 
     clearActiveEdges();

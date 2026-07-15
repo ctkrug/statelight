@@ -24,7 +24,12 @@ export function buildTransitionGraph(transitions = {}) {
 
   for (const [from, events] of Object.entries(transitions)) {
     addNode(from);
-    for (const [event, to] of Object.entries(events)) {
+    for (const [event, rawTo] of Object.entries(events)) {
+      // Object.entries stringifies `from` (an object key) but leaves a
+      // target value's original type untouched, so a numeric/other
+      // non-string state would otherwise count as a distinct node from its
+      // string-key appearance elsewhere in the same map.
+      const to = String(rawTo);
       addNode(to);
       edges.push({ id: edgeIdFor(from, event, to), from, to, event });
     }
@@ -114,7 +119,12 @@ export function layoutGraph(nodes, { nodeRadius = DEFAULT_NODE_RADIUS, padding =
 export function findActiveEdges(edges, entry) {
   if (!entry || entry.from == null) return [];
 
-  const matches = edges.filter((edge) => edge.from === entry.from && edge.to === entry.state);
+  // Edge endpoints are always strings (see buildTransitionGraph); a live
+  // watcher entry carries the machine's raw value type instead, so both
+  // sides need the same normalization to match a numeric/non-string state.
+  const from = String(entry.from);
+  const to = String(entry.state);
+  const matches = edges.filter((edge) => edge.from === from && edge.to === to);
   if (matches.length > 1 && entry.event) {
     const exact = matches.filter((edge) => edge.event === entry.event);
     if (exact.length) return exact;
