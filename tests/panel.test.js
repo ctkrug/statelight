@@ -53,6 +53,20 @@ test('createPanel renders the current state and a reversed trail', async () => {
   });
 });
 
+test('the current-state element is a live region so screen readers announce transitions', async () => {
+  await withDom(async (dom) => {
+    const { createPanel } = await import('../src/panel.js');
+    const panel = createPanel({ label: 'demo' });
+    panel.mount(dom.window.document.body);
+
+    const stateEl = panel.el.querySelector('.statelight-panel__state');
+    assert.equal(stateEl.getAttribute('aria-live'), 'polite');
+    assert.equal(stateEl.getAttribute('role'), 'status');
+
+    panel.destroy();
+  });
+});
+
 test('createPanel caps the rendered trail at six most recent entries', async () => {
   await withDom(async (dom) => {
     const { createPanel } = await import('../src/panel.js');
