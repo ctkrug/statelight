@@ -10,9 +10,22 @@ const handle = attach(machine, {
   stateKey: 'state',    // property to watch — default "state"
   label: 'my machine',  // panel title — defaults to stateKey
   eventName: 'advance',      // optional label attached to every recorded transition
-  historyLimit: 50           // optional cap on retained history entries
+  historyLimit: 50,          // optional cap on retained history entries
+  transitions: {              // optional — upgrades the panel to a full graph view
+    idle: { start: 'running' },
+    running: { pause: 'paused', stop: 'idle' },
+    paused: { resume: 'running', stop: 'idle' }
+  }
 });
 ```
+
+When `options.transitions` is set, the panel renders one node per state
+referenced in the map and one edge per `state -> event -> nextState` entry,
+auto-laid-out on a circle sized so nodes never overlap (works for any
+number of states, comfortably up to ~12 before it gets visually busy). The
+edge and node touched by the most recent transition pulse for 600ms.
+Without `transitions`, the panel falls back to the trail-only view — no
+graph container is rendered.
 
 Returns `{ watcher, panel, detach() }`. Call `detach()` to unmount the
 panel and restore `target[stateKey]` to a plain writable property.
@@ -44,9 +57,6 @@ panel.destroy();
 
 ## Not yet implemented (see `docs/BACKLOG.md`)
 
-- Passing a `transitions` map to render the full state graph and highlight
-  the live path (currently the panel only shows a linear recent-states
-  trail regardless of options).
 - Dragging/collapsing the panel.
 - Attaching more than one panel to the same page without manual
   positioning.
