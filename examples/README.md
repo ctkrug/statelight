@@ -17,3 +17,6 @@ npx serve .
 - **`traffic-light.html`** — the wow moment: a visible traffic light driven
   by the same handful of lines of state-machine code shown on the page,
   with the Statelight panel tracking it live.
+
+See also [`site/`](../site/) for the public landing page, which embeds
+this same traffic-light demo as its hero.
