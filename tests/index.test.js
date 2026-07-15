@@ -163,6 +163,49 @@ test('calling detach() twice is a safe no-op, and the machine can be re-attached
   }
 });
 
+test('attach() renders unicode/emoji state names correctly and escapes a hostile label as text, not markup', async () => {
+  const dom = new JSDOM('<!doctype html><html><body></body></html>');
+  global.document = dom.window.document;
+  global.window = dom.window;
+
+  try {
+    const { attach } = await import('../src/index.js');
+    const machine = { state: '🔴 idle' };
+    const transitions = {
+      '🔴 idle': { 'go!': '✅ done — 100%' },
+      '✅ done — 100%': { reset: '🔴 idle' }
+    };
+
+    const handle = attach(machine, { label: '<img src=x onerror=alert(1)>', transitions });
+
+    // A label containing markup must render as literal text, not be
+    // parsed as an element — textContent assignment already guarantees
+    // this, but it's worth locking in given the panel's innerHTML-built
+    // shell around it.
+    const labelEl = dom.window.document.querySelector('.statelight-panel__label');
+    assert.equal(labelEl.children.length, 0, 'a hostile label must not inject an element');
+    assert.equal(labelEl.textContent, '<img src=x onerror=alert(1)>');
+
+    assert.equal(dom.window.document.querySelectorAll('.statelight-graph__node').length, 2);
+
+    machine.state = '✅ done — 100%';
+
+    assert.equal(
+      dom.window.document.querySelector('.statelight-panel__state').textContent,
+      '✅ done — 100%'
+    );
+    assert.ok(
+      dom.window.document.querySelector('[data-node-id="✅ done — 100%"]').classList.contains('is-current')
+    );
+    assert.equal(dom.window.document.querySelectorAll('.statelight-graph__edge.is-active').length, 1);
+
+    handle.detach();
+  } finally {
+    delete global.document;
+    delete global.window;
+  }
+});
+
 test('attach() with options.stateKey watches a differently-named property and labels the panel from it', async () => {
   const dom = new JSDOM('<!doctype html><html><body></body></html>');
   global.document = dom.window.document;
