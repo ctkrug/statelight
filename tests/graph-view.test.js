@@ -51,6 +51,18 @@ test('createGraphView node labels display the state name', async () => {
   });
 });
 
+test('createGraphView labels each edge with its triggering event', async () => {
+  await withDom(async () => {
+    const { createGraphView } = await import('../src/graph-view.js');
+    const view = createGraphView({ idle: { start: 'running' } });
+
+    const label = view.el.querySelector('.statelight-graph__edge-label');
+    assert.equal(label.textContent, 'start');
+
+    view.destroy();
+  });
+});
+
 test('createGraphView is an SVG element sized from the layout', async () => {
   await withDom(async () => {
     const { createGraphView } = await import('../src/graph-view.js');
