@@ -63,6 +63,26 @@ test('createGraphView labels each edge with its triggering event', async () => {
   });
 });
 
+test('createGraphView gives each panel instance its own unique arrow marker id', async () => {
+  await withDom(async () => {
+    const { createGraphView } = await import('../src/graph-view.js');
+    const viewA = createGraphView({ idle: { start: 'running' } });
+    const viewB = createGraphView({ idle: { start: 'running' } });
+
+    const markerIdA = viewA.el.querySelector('marker').id;
+    const markerIdB = viewB.el.querySelector('marker').id;
+
+    assert.notEqual(markerIdA, markerIdB);
+    assert.match(
+      viewA.el.querySelector('.statelight-graph__edge-line').getAttribute('marker-end'),
+      new RegExp(`#${markerIdA}\\)$`)
+    );
+
+    viewA.destroy();
+    viewB.destroy();
+  });
+});
+
 test('createGraphView is an SVG element sized from the layout', async () => {
   await withDom(async () => {
     const { createGraphView } = await import('../src/graph-view.js');
