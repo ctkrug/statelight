@@ -73,8 +73,10 @@ export function layoutGraph(nodes, { nodeRadius = DEFAULT_NODE_RADIUS, padding =
   }
 
   // Minimum circle radius such that the chord between two adjacent nodes
-  // (2 * r * sin(pi / n)) is at least one node diameter.
-  const circleRadius = Math.max(nodeRadius / Math.sin(Math.PI / count), nodeRadius * 1.5);
+  // (2 * r * sin(pi / n)) is at least one node diameter, plus a 25% margin
+  // so adjacent nodes don't end up perfectly tangent — a tangent pair
+  // leaves zero room for their connecting edge's line/arrowhead to render.
+  const circleRadius = Math.max((nodeRadius * 1.25) / Math.sin(Math.PI / count), nodeRadius * 1.5);
   const size = circleRadius * 2 + nodeRadius * 2 + padding * 2;
   const center = size / 2;
 
