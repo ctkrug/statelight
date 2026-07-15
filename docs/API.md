@@ -64,6 +64,11 @@ watcher.onTransition(fn);     // subscribe; returns an unsubscribe function
 watcher.unwatch();            // restore a plain property
 ```
 
+Watching the same `(target, key)` pair twice without calling `unwatch()` in
+between throws — a second `watch()` (or `attach()`) call would otherwise
+silently take over the property and leave the first watcher's `unwatch()`
+holding a stale value.
+
 ## `createPanel(options?)`
 
 The DOM renderer `attach()` uses internally. Exposed for anyone who wants
