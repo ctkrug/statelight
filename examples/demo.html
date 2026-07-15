@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Statelight — minimal demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        background: #f5f5f5;
+        color: #1a1a1a;
+        max-width: 40rem;
+        margin: 4rem auto;
+        padding: 0 1.5rem;
+        line-height: 1.5;
+      }
+      button {
+        font: inherit;
+        padding: 0.5rem 1rem;
+        margin-right: 0.5rem;
+        cursor: pointer;
+      }
+      code {
+        background: #e8e8e8;
+        padding: 0.1rem 0.35rem;
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Statelight demo</h1>
+    <p>
+      This page runs a hand-rolled traffic-light state machine — a plain
+      object with a <code>state</code> property and nothing else. Statelight
+      is attached below with no build step: the panel in the bottom-right
+      corner tracks it live.
+    </p>
+    <p>
+      <button data-event="next">advance state</button>
+      <button data-event="reset">reset</button>
+    </p>
+
+    <script type="module">
+      import { attach } from '../src/index.js';
+
+      const machine = { state: 'red' };
+      const order = ['red', 'green', 'yellow'];
+
+      attach(machine, { label: 'traffic light' });
+
+      document.querySelector('[data-event="next"]').addEventListener('click', () => {
+        const next = order[(order.indexOf(machine.state) + 1) % order.length];
+        machine.state = next;
+      });
+
+      document.querySelector('[data-event="reset"]').addEventListener('click', () => {
+        machine.state = 'red';
+      });
+    </script>
+  </body>
+</html>
