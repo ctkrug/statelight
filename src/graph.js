@@ -88,3 +88,27 @@ export function layoutGraph(nodes, { nodeRadius = DEFAULT_NODE_RADIUS, padding =
 
   return { positions, width: size, height: size };
 }
+
+/**
+ * Finds the edge(s) a live transition traversed. A watcher only ever knows
+ * a single, watcher-wide `event` label (or none at all) — it has no way to
+ * know which of the transitions-map's per-edge event names actually fired
+ * — so matching is primarily by `from` -> `to`. When more than one edge
+ * shares that state pair (two different events landing on the same target)
+ * and the transition carries an event label that happens to match one of
+ * them, that edge is preferred; otherwise every matching edge lights up.
+ *
+ * @param {Array<{ id: string, from: string, to: string, event: string }>} edges
+ * @param {{ from: *, state: *, event?: string|null }} entry
+ * @returns {Array<{ id: string, from: string, to: string, event: string }>}
+ */
+export function findActiveEdges(edges, entry) {
+  if (!entry || entry.from == null) return [];
+
+  const matches = edges.filter((edge) => edge.from === entry.from && edge.to === entry.state);
+  if (matches.length > 1 && entry.event) {
+    const exact = matches.filter((edge) => edge.event === entry.event);
+    if (exact.length) return exact;
+  }
+  return matches;
+}
