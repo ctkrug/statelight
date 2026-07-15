@@ -99,20 +99,42 @@ as the machine moves through it live.
 - [x] The published `main`/`module`/`unpkg` entry points in `package.json`
       all resolve to files actually included in the `files` allowlist.
 
-### [ ] 3.2 Interactive landing page at `site/`
+### [x] 3.2 Interactive landing page at `site/`
 
-- [ ] `site/index.html` uses only relative asset paths (no leading `/`)
+- [x] `site/index.html` uses only relative asset paths (no leading `/`)
       and renders correctly when served from a non-root subpath.
-- [ ] The hero is a real, running Statelight instance attached to an
+      Verified by `tests/site.test.js` (scans every `src`/`href` for a
+      leading-slash path) and by serving `site/` locally at a `/site/`
+      sub-path with `python3 -m http.server`.
+- [x] The hero is a real, running Statelight instance attached to an
       example machine on the page — not a screenshot, gif, or static
-      mockup.
-- [ ] The page matches `docs/DESIGN.md`'s tokens and layout intent at
+      mockup. `site/main.js` calls the real `attach()` from `../src/index.js`
+      against a plain-object traffic-light machine with a transitions map;
+      clicking `advance()` drives the same watch()/panel/graph pipeline
+      the library ships, verified end-to-end with a headless Playwright
+      click that asserts the panel's state text and the graph's active
+      edge both update.
+- [x] The page matches `docs/DESIGN.md`'s tokens and layout intent at
       390px, 768px, and 1440px with no horizontal scroll or overlap.
+      Verified with headless Playwright screenshots at all three widths;
+      fixed a `min-width: auto` grid-shrink overflow at 390px and moved
+      the demo's panel out of `position: fixed` (which collided with the
+      demo's own button) into normal document flow within its card.
 
-### [ ] 3.3 Design polish — full design self-review on the landing page
+### [x] 3.3 Design polish — full design self-review on the landing page
 
-- [ ] Every item in the design standard's D3 self-review checklist
-      (resize/squint/tab-through/click-every-control) is verified and
-      noted as checked in the QA run's STATUS `memory` field.
-- [ ] No anti-generic-ban item (D2) is present: real fonts loaded, no
-      unstyled native controls, no placeholder copy, a real favicon.
+- [x] Every item in the design standard's D3 self-review checklist
+      (resize/squint/tab-through/click-every-control) is verified — see
+      the BUILD run's STATUS `memory` field. Resize: 390/768/1440px,
+      zero horizontal scroll. Squint: cyan-on-navy state/CTA read clearly
+      at a glance in the screenshots reviewed this run. Tab-through:
+      keyboard focus order is Get started → View on GitHub → advance() →
+      panel collapse toggle → footer GitHub link, all with visible
+      focus rings. Click-every-control: advance() and the panel's
+      collapse toggle were both driven headlessly and produced the
+      expected state/graph/collapse changes.
+- [x] No anti-generic-ban item (D2) is present: Space Grotesk + JetBrains
+      Mono load from Google Fonts, every button/link has custom hover/
+      focus-visible/active styling (no bare native controls), copy is
+      concrete product copy (no lorem ipsum/placeholder text), and
+      `site/favicon.svg` replaces the default browser icon.
