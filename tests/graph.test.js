@@ -53,6 +53,14 @@ test('edgeIdFor produces a stable, distinct id per from/event/to combination', (
   assert.notEqual(edgeIdFor('a', 'go', 'b'), edgeIdFor('a', 'go', 'c'));
 });
 
+test('edgeIdFor stays collision-free when a state or event name itself contains "::"', () => {
+  // Two semantically distinct edges that would join to the same raw string
+  // if "::" weren't escaped inside each segment first.
+  const collidingA = edgeIdFor('a::b', 'go', 'c');
+  const collidingB = edgeIdFor('a', 'b::go', 'c');
+  assert.notEqual(collidingA, collidingB);
+});
+
 function distance(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
