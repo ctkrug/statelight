@@ -10,12 +10,15 @@ import { createPanel } from './panel.js';
  * @param {object} [options]
  * @param {string} [options.stateKey] - property to watch (default "state")
  * @param {string} [options.label] - panel title (defaults to stateKey)
+ * @param {object} [options.transitions] - `{ [state]: { [event]: nextState } }`;
+ *   when given, the panel renders the full live transition graph instead
+ *   of the trail-only view.
  * @returns {{ detach: () => void, watcher: object, panel: object }}
  */
 export function attach(target, options = {}) {
-  const { stateKey = 'state', label } = options;
+  const { stateKey = 'state', label, transitions } = options;
   const watcher = watch(target, stateKey, options);
-  const panel = createPanel({ label: label || stateKey });
+  const panel = createPanel({ label: label || stateKey, transitions });
 
   panel.mount();
   panel.update({ state: watcher.current, from: null, event: null }, watcher.history());
