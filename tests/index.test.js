@@ -158,3 +158,31 @@ test('attach() falls back to document.body when options.container is an explicit
     delete global.window;
   }
 });
+
+test('a long session of attach()/detach() cycles leaves no panel or style-tag buildup', async () => {
+  const dom = new JSDOM('<!doctype html><html><body></body></html>');
+  global.document = dom.window.document;
+  global.window = dom.window;
+
+  try {
+    const { attach } = await import('../src/index.js');
+    const transitions = { idle: { go: 'running' }, running: { stop: 'idle' } };
+
+    for (let i = 0; i < 50; i++) {
+      const machine = { state: 'idle' };
+      const handle = attach(machine, { label: 'cycle-test', transitions });
+      machine.state = 'running';
+      machine.state = 'idle';
+      handle.detach();
+    }
+
+    assert.equal(dom.window.document.querySelectorAll('.statelight-panel').length, 0);
+    // ensureStyles() must stay idempotent across every cycle, not append a
+    // fresh <style> per attach() — that would grow <head> without bound
+    // over a long dev session.
+    assert.equal(dom.window.document.querySelectorAll('#statelight-styles').length, 1);
+  } finally {
+    delete global.document;
+    delete global.window;
+  }
+});
