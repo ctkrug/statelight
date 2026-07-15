@@ -135,6 +135,34 @@ test('attach() mounts into a custom container when options.container is given', 
   }
 });
 
+test('calling detach() twice is a safe no-op, and the machine can be re-attached afterward', async () => {
+  const dom = new JSDOM('<!doctype html><html><body></body></html>');
+  global.document = dom.window.document;
+  global.window = dom.window;
+
+  try {
+    const { attach } = await import('../src/index.js');
+    const machine = { state: 'idle' };
+    const handle = attach(machine);
+
+    handle.detach();
+    assert.doesNotThrow(() => handle.detach(), 'a second detach() call should not throw');
+
+    const second = attach(machine, { label: 're-attached' });
+    machine.state = 'running';
+
+    assert.equal(
+      dom.window.document.querySelector('.statelight-panel__state').textContent,
+      'running'
+    );
+
+    second.detach();
+  } finally {
+    delete global.document;
+    delete global.window;
+  }
+});
+
 test('attach() with options.stateKey watches a differently-named property and labels the panel from it', async () => {
   const dom = new JSDOM('<!doctype html><html><body></body></html>');
   global.document = dom.window.document;
