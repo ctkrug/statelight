@@ -41,3 +41,7 @@ test('site/index.html hides non-functional demo controls until main.js runs', ()
   const mainJs = readFileSync(new URL('main.js', siteDir), 'utf8');
   assert.match(mainJs, /classList\.remove\(['"]no-js['"]\)/);
 });
+
+test('site/index.html marks the demo label as a live region for screen readers', () => {
+  assert.match(html, /<strong id="demo-label" role="status" aria-live="polite">/);
+});
