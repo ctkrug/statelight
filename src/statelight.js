@@ -15,6 +15,13 @@
  *   unwatch: () => void
  * }}
  */
+// target -> Set<key> of properties currently instrumented by watch(), so a
+// second watch() call on the same target/key can fail loudly instead of
+// silently taking over the accessor — the first watcher's closure would
+// otherwise go stale, and its unwatch() would later revert the property to
+// that stale value and destroy the second watcher's instrumentation.
+const watchedKeys = new WeakMap();
+
 export function watch(target, key, options = {}) {
   if (target == null || typeof target !== 'object') {
     throw new TypeError('Statelight.watch: target must be an object');
@@ -22,6 +29,15 @@ export function watch(target, key, options = {}) {
   if (!(key in target)) {
     throw new TypeError(`Statelight.watch: target has no property "${key}"`);
   }
+  let keysForTarget = watchedKeys.get(target);
+  if (keysForTarget?.has(key)) {
+    throw new Error(`Statelight.watch: "${key}" is already being watched on this object — call unwatch() first`);
+  }
+  if (!keysForTarget) {
+    keysForTarget = new Set();
+    watchedKeys.set(target, keysForTarget);
+  }
+  keysForTarget.add(key);
 
   const listeners = new Set();
   let current = target[key];
@@ -69,6 +85,7 @@ export function watch(target, key, options = {}) {
         value: current
       });
       listeners.clear();
+      keysForTarget.delete(key);
     }
   };
 }
