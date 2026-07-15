@@ -2,6 +2,7 @@ import { buildTransitionGraph, layoutGraph } from './graph.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const NODE_RADIUS = 28;
+let instanceCounter = 0;
 
 function svgEl(tag, attrs = {}) {
   const el = document.createElementNS(SVG_NS, tag);
@@ -25,6 +26,7 @@ export function createGraphView(transitions) {
   if (nodes.length === 0) return null;
 
   const { positions, width, height } = layoutGraph(nodes, { nodeRadius: NODE_RADIUS });
+  const instanceId = `sl-${instanceCounter++}`;
 
   const svg = svgEl('svg', {
     class: 'statelight-graph',
@@ -33,12 +35,35 @@ export function createGraphView(transitions) {
     'aria-label': 'Live state transition graph'
   });
 
+  // A marker id must be unique per <svg> so multiple panels on one page
+  // (attach() called for several machines) don't collide on the same
+  // `url(#...)` reference.
+  const defs = svgEl('defs');
+  const arrow = svgEl('marker', {
+    id: `${instanceId}-arrow`,
+    viewBox: '0 0 10 10',
+    refX: 9,
+    refY: 5,
+    markerWidth: 7,
+    markerHeight: 7,
+    orient: 'auto-start-reverse'
+  });
+  arrow.appendChild(svgEl('path', { d: 'M0,0 L10,5 L0,10 z', class: 'statelight-graph__arrowhead' }));
+  defs.appendChild(arrow);
+  svg.appendChild(defs);
+
   const edgesGroup = svgEl('g', { class: 'statelight-graph__edges' });
   for (const edge of edges) {
     const from = positions.get(edge.from);
     const to = positions.get(edge.to);
     const group = svgEl('g', { class: 'statelight-graph__edge', 'data-edge-id': edge.id });
-    group.appendChild(svgEl('path', { class: 'statelight-graph__edge-line', d: straightPath(from, to, NODE_RADIUS) }));
+    group.appendChild(
+      svgEl('path', {
+        class: 'statelight-graph__edge-line',
+        d: straightPath(from, to, NODE_RADIUS),
+        'marker-end': `url(#${instanceId}-arrow)`
+      })
+    );
 
     if (edge.event) {
       const label = svgEl('text', {
