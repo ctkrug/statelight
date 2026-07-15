@@ -13,14 +13,18 @@ import { createPanel } from './panel.js';
  * @param {object} [options.transitions] - `{ [state]: { [event]: nextState } }`;
  *   when given, the panel renders the full live transition graph instead
  *   of the trail-only view.
+ * @param {Element} [options.container] - element to mount the panel into
+ *   instead of `document.body`; the panel keeps its own `position: fixed`
+ *   styling unless the host page overrides it (e.g. to dock the panel to
+ *   a specific container on narrow viewports).
  * @returns {{ detach: () => void, watcher: object, panel: object }}
  */
 export function attach(target, options = {}) {
-  const { stateKey = 'state', label, transitions } = options;
+  const { stateKey = 'state', label, transitions, container } = options;
   const watcher = watch(target, stateKey, options);
   const panel = createPanel({ label: label || stateKey, transitions });
 
-  panel.mount();
+  panel.mount(container);
   panel.update({ state: watcher.current, from: null, event: null }, watcher.history());
 
   const stopListening = watcher.onTransition((entry) => {
