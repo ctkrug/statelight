@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildTransitionGraph, edgeIdFor, layoutGraph } from '../src/graph.js';
+import { buildTransitionGraph, edgeIdFor, findActiveEdges, layoutGraph } from '../src/graph.js';
 
 test('buildTransitionGraph extracts one node per referenced state', () => {
   const { nodes } = buildTransitionGraph({
@@ -90,4 +90,46 @@ test('layoutGraph handles zero nodes without producing NaN bounds', () => {
 test('layoutGraph centers a single node within its bounds', () => {
   const { positions, width, height } = layoutGraph(['only']);
   assert.deepEqual(positions.get('only'), { x: width / 2, y: height / 2 });
+});
+
+test('findActiveEdges matches by from/to when no event is on the transition', () => {
+  const { edges } = buildTransitionGraph({ idle: { start: 'running' } });
+
+  const matched = findActiveEdges(edges, { from: 'idle', state: 'running', event: null });
+
+  assert.equal(matched.length, 1);
+  assert.equal(matched[0].id, edgeIdFor('idle', 'start', 'running'));
+});
+
+test('findActiveEdges prefers the exact event match when the pair is ambiguous', () => {
+  const { edges } = buildTransitionGraph({
+    idle: { start: 'running', reset: 'running' }
+  });
+
+  const matched = findActiveEdges(edges, { from: 'idle', state: 'running', event: 'reset' });
+
+  assert.equal(matched.length, 1);
+  assert.equal(matched[0].event, 'reset');
+});
+
+test('findActiveEdges returns every matching edge when a matching event cannot disambiguate', () => {
+  const { edges } = buildTransitionGraph({
+    idle: { start: 'running', reset: 'running' }
+  });
+
+  const matched = findActiveEdges(edges, { from: 'idle', state: 'running', event: null });
+
+  assert.equal(matched.length, 2);
+});
+
+test('findActiveEdges returns an empty list for the initial entry (no from state)', () => {
+  const { edges } = buildTransitionGraph({ idle: { start: 'running' } });
+
+  assert.deepEqual(findActiveEdges(edges, { from: null, state: 'idle', event: null }), []);
+});
+
+test('findActiveEdges returns an empty list when nothing matches', () => {
+  const { edges } = buildTransitionGraph({ idle: { start: 'running' } });
+
+  assert.deepEqual(findActiveEdges(edges, { from: 'running', state: 'done', event: null }), []);
 });
