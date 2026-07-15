@@ -63,6 +63,17 @@ a {
   align-items: center;
 }
 
+/* Grid items default to `min-width: auto`, which floors their size at
+   their content's max-content width (here, the install snippet's
+   unwrapped CDN URL) and can force the single mobile column — and the
+   page — wider than the viewport. min-width: 0 lets the track shrink to
+   the container and pushes overflow handling down to .hero__snippet's
+   own overflow-x: auto instead. */
+.hero__copy,
+.hero__demo {
+  min-width: 0;
+}
+
 @media (min-width: 960px) {
   .hero__grid {
     grid-template-columns: 55fr 45fr;
@@ -228,20 +239,23 @@ a {
 }
 
 .demo-card__panel-host {
-  position: relative;
   width: 100%;
 }
 
-@media (max-width: 600px) {
-  .demo-card__panel-host .statelight-panel {
-    position: absolute !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    top: auto !important;
-    width: 100% !important;
-    max-width: 100% !important;
-  }
+/* The hero demo docks its panel in the normal document flow, below the
+   demo's own controls, instead of leaving it at the library's default
+   `position: fixed` viewport corner — a corner-pinned panel would follow
+   the card wherever it lands on the page and risks covering the "advance"
+   button. Real attach() consumers who mount to document.body (the
+   default) still get the corner-pinned floating behavior this overrides;
+   this is a site-only presentation choice for embedding the live demo in
+   a card. Applies at every width so the panel never overlaps the demo's
+   controls, per docs/DESIGN.md's phone-layout requirement. */
+.demo-card__panel-host .statelight-panel {
+  position: static;
+  width: 100%;
+  max-width: 100%;
+  margin-top: var(--sl-space-4);
 }
 
 /* ---------- How it works ---------- */
