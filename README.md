@@ -45,13 +45,17 @@ See [`docs/VISION.md`](docs/VISION.md) for the full design rationale and
 
 ## Demo site
 
-`site/index.html` is a self-contained landing page with a real, running
-Statelight instance as its hero — not a screenshot. Open it via a local
-static server (it uses ES module imports, so `file://` won't work):
+`site/index.html` is a landing page with a real, running Statelight
+instance as its hero — not a screenshot. It imports the library straight
+from `../src/`, so serve the **repo root** (not the `site/` folder alone,
+which would 404 on that `../` import) and open `/site/`:
 
 ```sh
-npx serve site
+npx serve .
+# then open http://localhost:3000/site/
 ```
+
+(`file://` won't work either way — the page uses ES module imports.)
 
 ## Usage
 
