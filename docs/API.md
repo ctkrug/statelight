@@ -11,6 +11,7 @@ const handle = attach(machine, {
   label: 'my machine',  // panel title — defaults to stateKey
   eventName: 'advance',      // optional label attached to every recorded transition
   historyLimit: 50,          // optional cap on retained history entries
+  container: document.getElementById('host'), // optional — mount target, default document.body
   transitions: {              // optional — upgrades the panel to a full graph view
     idle: { start: 'running' },
     running: { pause: 'paused', stop: 'idle' },
@@ -29,6 +30,12 @@ graph container is rendered.
 
 Returns `{ watcher, panel, detach() }`. Call `detach()` to unmount the
 panel and restore `target[stateKey]` to a plain writable property.
+
+By default the panel mounts to `document.body` with its usual
+`position: fixed` viewport-corner placement. Pass `options.container` to
+mount it into a specific element instead — the panel keeps its own CSS
+unless the host page overrides it, which is how `site/`'s demo docks the
+panel inside its own card instead of floating over the whole page.
 
 ### Panel ergonomics
 
