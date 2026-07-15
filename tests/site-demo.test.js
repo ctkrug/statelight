@@ -7,7 +7,7 @@ const DEMO_HTML = `<!doctype html>
   <body>
     <h1 class="wordmark">State<span class="wordmark__light" id="wordmark-light">light</span></h1>
     <span id="demo-light"></span>
-    <strong id="demo-label"></strong>
+    <strong id="demo-label" role="status" aria-live="polite"></strong>
     <button type="button" id="demo-advance">advance()</button>
     <div id="demo-panel-host"></div>
   </body>
