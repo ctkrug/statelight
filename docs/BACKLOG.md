@@ -91,12 +91,12 @@ as the machine moves through it live.
 
 ## Epic 3 — Distribution & demo site
 
-### [ ] 3.1 Package is installable and importable from a built tarball
+### [x] 3.1 Package is installable and importable from a built tarball
 
-- [ ] `npm pack` followed by installing the resulting tarball into a
+- [x] `npm pack` followed by installing the resulting tarball into a
       scratch project and `import`-ing `attach` from it succeeds with no
       missing-file errors.
-- [ ] The published `main`/`module`/`unpkg` entry points in `package.json`
+- [x] The published `main`/`module`/`unpkg` entry points in `package.json`
       all resolve to files actually included in the `files` allowlist.
 
 ### [ ] 3.2 Interactive landing page at `site/`
