@@ -1,0 +1,41 @@
+{
+  "name": "statelight",
+  "version": "0.1.0",
+  "description": "A floating debug panel for hand-rolled JavaScript state machines. One script tag, zero framework lock-in.",
+  "type": "module",
+  "main": "dist/statelight.js",
+  "module": "src/index.js",
+  "unpkg": "dist/statelight.min.js",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "test": "node --test tests/",
+    "build": "node scripts/build.js"
+  },
+  "keywords": [
+    "state-machine",
+    "fsm",
+    "debug",
+    "devtools",
+    "vanilla-js"
+  ],
+  "author": "Charlie Krug",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ctkrug/statelight.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ctkrug/statelight/issues"
+  },
+  "homepage": "https://github.com/ctkrug/statelight#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "jsdom": "^25.0.1"
+  }
+}
