@@ -1,5 +1,6 @@
 import { PANEL_CSS } from './styles.js';
 import { createGraphView } from './graph-view.js';
+import { safeGet, safeSet } from './storage.js';
 
 const PANEL_CLASS = 'statelight-panel';
 const STYLE_ID = 'statelight-styles';
@@ -37,6 +38,10 @@ export function createPanel({ label = 'State Machine', transitions } = {}) {
     <div class="statelight-panel__header">
       <span class="statelight-panel__mark">&#9670; Statelight</span>
       <span class="statelight-panel__label"></span>
+      <button type="button" class="statelight-panel__toggle" aria-expanded="true">
+        <span class="statelight-panel__unread" aria-hidden="true"></span>
+        <span class="statelight-panel__toggle-icon" aria-hidden="true">&#9662;</span>
+      </button>
     </div>
     <div class="statelight-panel__state"></div>
     <div class="statelight-panel__graph"></div>
@@ -47,7 +52,29 @@ export function createPanel({ label = 'State Machine', transitions } = {}) {
   const stateEl = root.querySelector('.statelight-panel__state');
   const graphEl = root.querySelector('.statelight-panel__graph');
   const trailEl = root.querySelector('.statelight-panel__trail');
+  const toggleEl = root.querySelector('.statelight-panel__toggle');
   labelEl.textContent = label;
+
+  // Namespaced by label since that's the only per-machine identifier
+  // attach() options provide; two panels sharing a default label will
+  // share collapsed state, which is an acceptable edge case for a
+  // dev-tool panel.
+  const collapseStorageKey = `statelight:${label}:collapsed`;
+  let collapsed = safeGet(collapseStorageKey) === '1';
+
+  function setCollapsed(value) {
+    collapsed = value;
+    root.classList.toggle('is-collapsed', collapsed);
+    toggleEl.setAttribute('aria-expanded', String(!collapsed));
+    toggleEl.setAttribute('aria-label', collapsed ? 'Expand panel' : 'Collapse panel');
+    if (!collapsed) toggleEl.querySelector('.statelight-panel__unread').classList.remove('is-visible');
+  }
+
+  setCollapsed(collapsed);
+  toggleEl.addEventListener('click', () => {
+    setCollapsed(!collapsed);
+    safeSet(collapseStorageKey, collapsed ? '1' : '0');
+  });
 
   // Only mount a graph container when there's an actual graph to show —
   // an empty <div> left in the DOM for the zero-config trail-only case
@@ -70,6 +97,7 @@ export function createPanel({ label = 'State Machine', transitions } = {}) {
     stateEl.classList.add('is-pulsing');
 
     if (graphView) graphView.highlight(entry);
+    if (collapsed) toggleEl.querySelector('.statelight-panel__unread').classList.add('is-visible');
 
     trailEl.innerHTML = '';
     history
