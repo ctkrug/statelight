@@ -224,6 +224,38 @@ test('a dragged position persists across panels sharing a label via localStorage
   });
 });
 
+test('a hand-corrupted position value in localStorage falls back to the default position instead of crashing', async () => {
+  await withPersistentDom(async (dom) => {
+    dom.window.localStorage.setItem('statelight:corrupt-demo:position', 'not valid json{{{');
+
+    const { createPanel } = await import('../src/panel.js');
+    const panel = createPanel({ label: 'corrupt-demo' });
+
+    assert.doesNotThrow(() => panel.mount(dom.window.document.body));
+    // No crash and no left/top applied from the garbage value — the panel
+    // stays at its CSS default corner.
+    assert.equal(panel.el.style.left, '');
+    assert.equal(panel.el.style.top, '');
+
+    panel.destroy();
+  });
+});
+
+test('a partial position object (missing a coordinate) in localStorage is ignored rather than half-applied', async () => {
+  await withPersistentDom(async (dom) => {
+    dom.window.localStorage.setItem('statelight:partial-demo:position', JSON.stringify({ left: 100 }));
+
+    const { createPanel } = await import('../src/panel.js');
+    const panel = createPanel({ label: 'partial-demo' });
+    panel.mount(dom.window.document.body);
+
+    assert.equal(panel.el.style.left, '');
+    assert.equal(panel.el.style.top, '');
+
+    panel.destroy();
+  });
+});
+
 test('multiple default-position panels cascade instead of stacking exactly on top of each other', async () => {
   await withDom(async (dom) => {
     const { createPanel } = await import('../src/panel.js');
