@@ -108,3 +108,29 @@ test('attaching two machines produces independent panels; detaching one leaves t
     delete global.window;
   }
 });
+
+test('attach() mounts into a custom container when options.container is given', async () => {
+  const dom = new JSDOM(
+    '<!doctype html><html><body><div id="host"></div></body></html>'
+  );
+  global.document = dom.window.document;
+  global.window = dom.window;
+
+  try {
+    const { attach } = await import('../src/index.js');
+    const machine = { state: 'idle' };
+    const host = dom.window.document.getElementById('host');
+
+    const handle = attach(machine, { label: 'hosted machine', container: host });
+    const panelEl = host.querySelector('.statelight-panel');
+
+    assert.ok(panelEl, 'the panel should be a descendant of the given container');
+    assert.equal(panelEl.parentElement, host, 'the panel should mount directly into the container');
+
+    handle.detach();
+    assert.equal(host.querySelectorAll('.statelight-panel').length, 0);
+  } finally {
+    delete global.document;
+    delete global.window;
+  }
+});
