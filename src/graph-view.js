@@ -1,8 +1,9 @@
-import { buildTransitionGraph, layoutGraph } from './graph.js';
+import { buildTransitionGraph, findActiveEdges, layoutGraph } from './graph.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const NODE_RADIUS = 28;
 const SELF_LOOP_RADIUS = 16;
+const HIGHLIGHT_MS = 600;
 let instanceCounter = 0;
 
 function svgEl(tag, attrs = {}) {
@@ -18,8 +19,12 @@ function svgEl(tag, attrs = {}) {
  * edge per state -> event -> nextState entry. Pure DOM/SVG — the graph
  * shape and node positions come from `graph.js`.
  *
+ * The most recently traversed edge (and the now-current node) get an
+ * `is-active` / `is-current` class for {@link HIGHLIGHT_MS} so the shared
+ * blueprint pulse language can render the live glow — see `highlight()`.
+ *
  * @param {object} transitions - shape `{ [state]: { [event]: nextState } }`
- * @returns {null|{ el: SVGSVGElement, destroy: () => void }}
+ * @returns {null|{ el: SVGSVGElement, highlight: (entry: object) => void, destroy: () => void }}
  *   `null` when the transitions map yields no nodes (nothing to draw).
  */
 export function createGraphView(transitions) {
@@ -53,6 +58,9 @@ export function createGraphView(transitions) {
   defs.appendChild(arrow);
   svg.appendChild(defs);
 
+  const edgeEls = new Map();
+  const nodeEls = new Map();
+
   const edgesGroup = svgEl('g', { class: 'statelight-graph__edges' });
   for (const edge of edges) {
     const from = positions.get(edge.from);
@@ -78,6 +86,7 @@ export function createGraphView(transitions) {
     }
 
     edgesGroup.appendChild(group);
+    edgeEls.set(edge.id, group);
   }
 
   const nodesGroup = svgEl('g', { class: 'statelight-graph__nodes' });
@@ -89,14 +98,53 @@ export function createGraphView(transitions) {
     label.textContent = String(id);
     group.appendChild(label);
     nodesGroup.appendChild(group);
+    nodeEls.set(id, group);
   }
 
   svg.appendChild(edgesGroup);
   svg.appendChild(nodesGroup);
 
+  let currentNodeEl = null;
+  const activeTimers = new Map();
+
+  function clearActiveEdges() {
+    for (const [id, timerId] of activeTimers) {
+      clearTimeout(timerId);
+      edgeEls.get(id)?.classList.remove('is-active');
+    }
+    activeTimers.clear();
+  }
+
+  /**
+   * Marks `entry.state`'s node as current and pulses the edge(s) that
+   * transition traversed. Clears any still-pending highlight from a prior
+   * call immediately, so only the most recent transition is ever lit.
+   */
+  function highlight(entry) {
+    if (currentNodeEl) currentNodeEl.classList.remove('is-current');
+    currentNodeEl = nodeEls.get(entry.state) || null;
+    if (currentNodeEl) currentNodeEl.classList.add('is-current');
+
+    clearActiveEdges();
+    for (const edge of findActiveEdges(edges, entry)) {
+      const el = edgeEls.get(edge.id);
+      if (!el) continue;
+      el.classList.add('is-active');
+      activeTimers.set(
+        edge.id,
+        setTimeout(() => {
+          el.classList.remove('is-active');
+          activeTimers.delete(edge.id);
+        }, HIGHLIGHT_MS)
+      );
+    }
+  }
+
   return {
     el: svg,
+    highlight,
     destroy() {
+      clearActiveEdges();
       svg.remove();
     }
   };
