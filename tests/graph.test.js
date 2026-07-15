@@ -163,3 +163,17 @@ test('findActiveEdges returns an empty list when nothing matches', () => {
 
   assert.deepEqual(findActiveEdges(edges, { from: 'running', state: 'done', event: null }), []);
 });
+
+test('findActiveEdges requires both from AND to to match, not just one', () => {
+  // A partial match — entry.from matches one edge's `from`, entry.state
+  // matches a *different* edge's `to` — must not be returned by either.
+  // (Regression guard: an from-OR-to match would wrongly light up both.)
+  const { edges } = buildTransitionGraph({
+    idle: { start: 'running' },
+    other: { finish: 'done' }
+  });
+
+  const matched = findActiveEdges(edges, { from: 'idle', state: 'done', event: null });
+
+  assert.deepEqual(matched, []);
+});
