@@ -34,9 +34,10 @@ property somewhere."
       with transition history, usable standalone in Node or the browser.
 - [x] Floating panel UI: current state and recent-transition trail.
 - [x] Optional transition-map graph rendering with a live-highlighted path.
-- [ ] Panel ergonomics: collapse/expand, drag to reposition.
-- [ ] Multi-machine support (attach panels for more than one state machine
-      on the same page, stacked or tabbed).
+- [x] Panel ergonomics: collapse/expand, drag to reposition, persisted via
+      `localStorage`.
+- [x] Multi-machine support — `attach()` more than one state machine on
+      the same page; panels cascade by default and detach independently.
 - [ ] Public demo site with an interactive example machine.
 
 See [`docs/VISION.md`](docs/VISION.md) for the full design rationale and
