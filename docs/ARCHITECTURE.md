@@ -22,10 +22,22 @@ src/
                    top of graph.js. Returns { el, highlight(entry), destroy() }
                    or null when the map is empty. Owns the pulse-timeout
                    lifecycle for the active edge/node.
-  panel.js         createPanel(options) — the floating DOM panel: header,
-                   current-state text, the graph (when transitions is
-                   passed — wraps graph-view.js), and the recent-transition
-                   trail. Injects styles.js's CSS into <head> once per page.
+  panel.js         createPanel(options) — the floating DOM panel: header
+                   (label, collapse toggle, drag handle), current-state
+                   text, the graph (when transitions is passed — wraps
+                   graph-view.js), and the recent-transition trail. Injects
+                   styles.js's CSS into <head> once per page. Owns
+                   collapse/drag/multi-machine-cascade wiring and their
+                   localStorage persistence (via storage.js).
+  drag.js          makeDraggable(handleEl, targetEl, opts) — generic
+                   pointer-drag repositioning, viewport-clamped. No
+                   panel-specific knowledge; panel.js wires it to the
+                   header and persists the result.
+  storage.js       safeGet/safeSet — a localStorage wrapper that no-ops
+                   instead of throwing on opaque origins/privacy mode.
+                   Persistence (collapsed state, dragged position) is a
+                   pure enhancement, so a failure here must never crash
+                   the host page.
   styles.js        PANEL_CSS — single source of truth for the panel's and
                    graph's CSS, injected at runtime and also written to
                    dist/statelight.css by the build for anyone who'd rather
@@ -64,6 +76,23 @@ The graph's *shape* (nodes/edges/layout) is computed once at `attach()`
 time from the static `transitions` map — only the highlight state changes
 per transition, so there's no per-transition DOM rebuild.
 
+## Panel ergonomics (epic 2)
+
+- **Collapse/expand:** a real `<button>` in the header toggles the
+  `is-collapsed` class (CSS hides state/graph/trail) and an unread dot;
+  state is namespaced `statelight:${label}:collapsed` in localStorage.
+- **Drag:** `makeDraggable()` is wired to the whole header with the toggle
+  button excluded (`exclude: '.statelight-panel__toggle'`), so the two
+  gestures can't fight over the same pointerdown. Position is namespaced
+  `statelight:${label}:position` in localStorage; a saved position wins
+  over the default corner on the next mount.
+- **Multi-machine cascade:** panels that *don't* have a saved position
+  claim a module-level "stack slot" (`panel.js`'s `claimStackSlot`/
+  `releaseStackSlot`) and offset the `--sl-stack-offset` CSS var by one
+  header-height per slot, so several `attach()`ed panels fan out instead
+  of sitting exactly on top of one another. Slots release on `destroy()`
+  and are reused LIFO by the next panel that needs the default position.
+
 ## Rendering notes
 
 - Everything DOM-related uses plain `document.createElement` /
@@ -88,6 +117,13 @@ per transition, so there's no per-transition DOM rebuild.
 ## Known trade-off
 
 `docs/VISION.md` targets under 3kb gzipped for `dist/statelight.min.js`.
-The transition-graph feature (SVG rendering + its CSS) pushed the gzipped
-bundle to ~3.6kb. Worth revisiting in a later pass (e.g. minifying the
-`PANEL_CSS` template string) if the budget needs to hold strictly.
+Shipping the transition graph, collapse/drag, and multi-machine cascade
+(SVG rendering, drag.js, storage.js, and their CSS) has grown the gzipped
+bundle to ~5kb. `PANEL_CSS` in `styles.js` is the largest single
+contributor — it's an unminified template string, since esbuild's minifier
+doesn't touch string literal contents. The most direct way to claw this
+back without cutting features: hand-compact `PANEL_CSS` (strip
+comments/whitespace) or move it to a real `.css` file processed by a small
+CSS minifier at build time. Worth a dedicated pass if the budget needs to
+hold strictly; not attempted here to keep this run focused on feature
+completeness.
