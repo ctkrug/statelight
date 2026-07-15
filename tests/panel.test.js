@@ -56,3 +56,42 @@ test('createPanel throws outside a DOM environment', async () => {
   const { createPanel } = await import('../src/panel.js');
   assert.throws(() => createPanel(), /requires a DOM environment/);
 });
+
+test('createPanel without a transitions option leaves no graph container in the DOM', async () => {
+  await withDom(async (dom) => {
+    const { createPanel } = await import('../src/panel.js');
+    const panel = createPanel({ label: 'demo' });
+    panel.mount(dom.window.document.body);
+
+    assert.equal(panel.el.querySelector('.statelight-panel__graph'), null);
+    assert.equal(panel.el.querySelector('.statelight-graph'), null);
+
+    panel.destroy();
+  });
+});
+
+test('createPanel with a transitions option renders the graph and highlights on update', async () => {
+  await withDom(async (dom) => {
+    const { createPanel } = await import('../src/panel.js');
+    const panel = createPanel({
+      label: 'demo',
+      transitions: { idle: { start: 'running' } }
+    });
+    panel.mount(dom.window.document.body);
+
+    assert.ok(panel.el.querySelector('.statelight-graph'));
+    assert.equal(panel.el.querySelectorAll('.statelight-graph__node').length, 2);
+
+    panel.update({ state: 'running', from: 'idle', event: 'start' }, [
+      { state: 'idle' },
+      { state: 'running' }
+    ]);
+
+    assert.ok(
+      panel.el.querySelector('[data-node-id="running"]').classList.contains('is-current')
+    );
+    assert.ok(panel.el.querySelector('[data-edge-id]').classList.contains('is-active'));
+
+    panel.destroy();
+  });
+});
