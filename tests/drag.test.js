@@ -108,6 +108,73 @@ test('pointerup calls onDragEnd with the final position and stops the drag', asy
   });
 });
 
+test('a pointermove/pointerup from a second, unrelated pointer is ignored mid-drag', async () => {
+  await withDom(async (dom) => {
+    // A second touch landing on the handle while a drag from a different
+    // pointer is already in progress (a plausible multi-touch scenario on
+    // a phone) must not hijack or end the in-progress drag.
+    const { makeDraggable } = await import('../src/drag.js');
+    const handle = dom.window.document.createElement('div');
+    const target = dom.window.document.createElement('div');
+    target.getBoundingClientRect = () => ({ left: 10, top: 10, width: 0, height: 0 });
+    dom.window.document.body.append(handle, target);
+
+    const ends = [];
+    makeDraggable(handle, target, { onDragEnd: (pos) => ends.push(pos) });
+
+    handle.dispatchEvent(pointerEvent(dom.window, 'pointerdown', { pointerId: 1, clientX: 10, clientY: 10 }));
+    handle.dispatchEvent(pointerEvent(dom.window, 'pointermove', { pointerId: 2, clientX: 999, clientY: 999 }));
+    handle.dispatchEvent(pointerEvent(dom.window, 'pointerup', { pointerId: 2, clientX: 999, clientY: 999 }));
+
+    assert.equal(target.style.left, '', 'the unrelated pointer should not move the target');
+    assert.ok(target.classList.contains('is-dragging'), 'the original drag should still be in progress');
+    assert.equal(ends.length, 0, 'the unrelated pointerup should not end the original drag');
+  });
+});
+
+test('pointermove/pointerup/pointercancel with no active drag are no-ops', async () => {
+  await withDom(async (dom) => {
+    const { makeDraggable } = await import('../src/drag.js');
+    const handle = dom.window.document.createElement('div');
+    const target = dom.window.document.createElement('div');
+    target.getBoundingClientRect = () => ({ left: 0, top: 0, width: 0, height: 0 });
+    dom.window.document.body.append(handle, target);
+
+    const ends = [];
+    makeDraggable(handle, target, { onDragEnd: (pos) => ends.push(pos) });
+
+    assert.doesNotThrow(() => {
+      handle.dispatchEvent(pointerEvent(dom.window, 'pointermove', { clientX: 5, clientY: 5 }));
+      handle.dispatchEvent(pointerEvent(dom.window, 'pointerup', { clientX: 5, clientY: 5 }));
+      handle.dispatchEvent(pointerEvent(dom.window, 'pointercancel', { clientX: 5, clientY: 5 }));
+    });
+    assert.equal(target.style.left, '');
+    assert.equal(ends.length, 0);
+  });
+});
+
+test('pointercancel ends the drag the same way pointerup does', async () => {
+  await withDom(async (dom) => {
+    const { makeDraggable } = await import('../src/drag.js');
+    const handle = dom.window.document.createElement('div');
+    const target = dom.window.document.createElement('div');
+    let rect = { left: 0, top: 0, width: 0, height: 0 };
+    target.getBoundingClientRect = () => rect;
+    dom.window.document.body.append(handle, target);
+
+    const ends = [];
+    makeDraggable(handle, target, { onDragEnd: (pos) => ends.push(pos) });
+
+    handle.dispatchEvent(pointerEvent(dom.window, 'pointerdown', { clientX: 0, clientY: 0 }));
+    rect = { left: 15, top: 5, width: 0, height: 0 };
+    handle.dispatchEvent(pointerEvent(dom.window, 'pointercancel', { clientX: 15, clientY: 5 }));
+
+    assert.equal(ends.length, 1);
+    assert.deepEqual(ends[0], { left: 15, top: 5 });
+    assert.equal(target.classList.contains('is-dragging'), false);
+  });
+});
+
 test('destroy() removes all pointer listeners so further drags are inert', async () => {
   await withDom(async (dom) => {
     const { makeDraggable } = await import('../src/drag.js');
