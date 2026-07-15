@@ -76,11 +76,10 @@ export function createGraphView(transitions) {
     );
 
     if (edge.event) {
-      const label = svgEl('text', {
-        class: 'statelight-graph__edge-label',
-        x: isSelfLoop ? from.x : (from.x + to.x) / 2,
-        y: isSelfLoop ? from.y - NODE_RADIUS - SELF_LOOP_RADIUS * 2 - 4 : (from.y + to.y) / 2 - 6
-      });
+      const labelPos = isSelfLoop
+        ? { x: from.x, y: from.y - NODE_RADIUS - SELF_LOOP_RADIUS * 2 - 4 }
+        : outwardLabelPosition(from, to, width / 2, height / 2);
+      const label = svgEl('text', { class: 'statelight-graph__edge-label', x: labelPos.x, y: labelPos.y });
       label.textContent = edge.event;
       group.appendChild(label);
     }
@@ -165,4 +164,22 @@ function selfLoopPath({ x, y }, nodeRadius) {
   const top = y - nodeRadius;
   const loopTop = top - SELF_LOOP_RADIUS * 2;
   return `M${x - nodeRadius * 0.6},${top} C${x - nodeRadius * 0.6},${loopTop} ${x + nodeRadius * 0.6},${loopTop} ${x + nodeRadius * 0.6},${top}`;
+}
+
+// On a circular layout, an edge's straight-line midpoint sits close to the
+// center of the circle — exactly where every other edge's midpoint also
+// lands, guaranteeing label collisions. Nudging the label away from the
+// graph's center along the edge's own perpendicular keeps it near the edge
+// while spreading labels for different edges apart from one another.
+function outwardLabelPosition(from, to, centerX, centerY) {
+  const midX = (from.x + to.x) / 2;
+  const midY = (from.y + to.y) / 2;
+  const outX = midX - centerX;
+  const outY = midY - centerY;
+  const outDist = Math.hypot(outX, outY) || 1;
+  const offset = NODE_RADIUS * 0.9;
+  return {
+    x: midX + (outX / outDist) * offset,
+    y: midY + (outY / outDist) * offset
+  };
 }
