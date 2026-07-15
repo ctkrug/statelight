@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Statelight — traffic light example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        background: #f5f5f5;
+        color: #1a1a1a;
+        max-width: 40rem;
+        margin: 4rem auto;
+        padding: 0 1.5rem;
+        line-height: 1.5;
+      }
+      .light {
+        display: inline-block;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+        vertical-align: middle;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        transition: background 150ms ease-out;
+      }
+      button {
+        font: inherit;
+        padding: 0.5rem 1rem;
+        margin-top: 1rem;
+        cursor: pointer;
+      }
+      pre {
+        background: #1a1a1a;
+        color: #e7edf7;
+        padding: 1rem;
+        border-radius: 6px;
+        overflow-x: auto;
+        font-size: 0.85rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Traffic light example</h1>
+    <p><span class="light" id="light"></span><strong id="label">red</strong></p>
+    <button id="advance">advance()</button>
+
+    <p>The whole state machine driving this page:</p>
+    <pre id="source"></pre>
+
+    <script type="module">
+      import { attach } from '../src/index.js';
+
+      const COLORS = { red: '#fb7185', green: '#34d399', yellow: '#f2b632' };
+      const NEXT = { red: 'green', green: 'yellow', yellow: 'red' };
+
+      // The entire "state machine": a plain object plus a lookup table.
+      // Statelight doesn't require anything more than this.
+      const trafficLight = { state: 'red' };
+
+      function advance() {
+        trafficLight.state = NEXT[trafficLight.state];
+      }
+
+      attach(trafficLight, { label: 'traffic light', eventName: 'advance' });
+
+      const lightEl = document.getElementById('light');
+      const labelEl = document.getElementById('label');
+
+      function render() {
+        lightEl.style.background = COLORS[trafficLight.state];
+        labelEl.textContent = trafficLight.state;
+      }
+
+      document.getElementById('advance').addEventListener('click', () => {
+        advance();
+        render();
+      });
+
+      document.getElementById('source').textContent = [
+        "const trafficLight = { state: 'red' };",
+        "const NEXT = { red: 'green', green: 'yellow', yellow: 'red' };",
+        '',
+        'function advance() {',
+        '  trafficLight.state = NEXT[trafficLight.state];',
+        '}'
+      ].join('\n');
+
+      render();
+    </script>
+  </body>
+</html>
