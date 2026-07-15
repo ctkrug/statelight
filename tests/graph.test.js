@@ -48,6 +48,28 @@ test('buildTransitionGraph keeps a self-loop as a single edge', () => {
   assert.equal(edges[0].to, 'stuck');
 });
 
+test('buildTransitionGraph treats a numeric target state as the same node as its string key form', () => {
+  // Object keys are always stringified ("0"), but a raw numeric value used
+  // as a transition target keeps its original type unless normalized —
+  // an enum-style integer state machine is a realistic transitions map.
+  const { nodes, edges } = buildTransitionGraph({ 0: { go: 1 }, 1: { go: 0 } });
+
+  assert.deepEqual(nodes, ['0', '1']);
+  assert.deepEqual(edges, [
+    { id: edgeIdFor('0', 'go', '1'), from: '0', to: '1', event: 'go' },
+    { id: edgeIdFor('1', 'go', '0'), from: '1', to: '0', event: 'go' }
+  ]);
+});
+
+test('findActiveEdges matches a numeric live entry against string-normalized edge endpoints', () => {
+  const { edges } = buildTransitionGraph({ 0: { go: 1 }, 1: { go: 0 } });
+
+  const matches = findActiveEdges(edges, { from: 0, state: 1, event: 'go' });
+
+  assert.equal(matches.length, 1);
+  assert.equal(matches[0].to, '1');
+});
+
 test('edgeIdFor produces a stable, distinct id per from/event/to combination', () => {
   assert.equal(edgeIdFor('a', 'go', 'b'), 'a::go::b');
   assert.notEqual(edgeIdFor('a', 'go', 'b'), edgeIdFor('a', 'go', 'c'));

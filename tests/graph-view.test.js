@@ -115,6 +115,28 @@ test('highlight() marks the current node and the traversed edge as active', asyn
   });
 });
 
+test('highlight() marks the current node and edge for a numeric-valued live entry', async () => {
+  await withDom(async () => {
+    const { createGraphView } = await import('../src/graph-view.js');
+    const view = createGraphView({ 0: { go: 1 }, 1: { go: 0 } });
+
+    // A watcher on an integer-enum state machine reports raw numbers, not
+    // the stringified keys the transitions map's node ids are built from.
+    view.highlight({ from: 0, state: 1, event: 'go' });
+
+    assert.ok(
+      view.el.querySelector('[data-node-id="1"]').classList.contains('is-current'),
+      'the node for state 1 should be marked current even though the live entry is a number'
+    );
+    assert.ok(
+      view.el.querySelector('[data-edge-id]').classList.contains('is-active'),
+      'the 0 -> 1 edge should light up for a numeric transition'
+    );
+
+    view.destroy();
+  });
+});
+
 test('highlight() clears the previous highlight when a new transition fires', async () => {
   await withDom(async () => {
     const { createGraphView } = await import('../src/graph-view.js');
