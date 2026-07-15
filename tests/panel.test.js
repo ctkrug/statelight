@@ -57,6 +57,26 @@ test('createPanel throws outside a DOM environment', async () => {
   assert.throws(() => createPanel(), /requires a DOM environment/);
 });
 
+test('createPanel labels a trail entry with its event when one is set', async () => {
+  await withDom(async (dom) => {
+    const { createPanel } = await import('../src/panel.js');
+    const panel = createPanel({ label: 'demo' });
+    panel.mount(dom.window.document.body);
+
+    panel.update({ state: 'running', from: 'idle', event: 'start' }, [
+      { state: 'idle', event: null },
+      { state: 'running', event: 'start' }
+    ]);
+
+    const trailItems = [...panel.el.querySelectorAll('.statelight-panel__trail li')].map(
+      (li) => li.textContent
+    );
+    assert.deepEqual(trailItems, ['running · start', 'idle']);
+
+    panel.destroy();
+  });
+});
+
 test('createPanel without a transitions option leaves no graph container in the DOM', async () => {
   await withDom(async (dom) => {
     const { createPanel } = await import('../src/panel.js');
