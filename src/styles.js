@@ -45,6 +45,16 @@ export const PANEL_CSS = `
   padding: var(--sl-space-2) var(--sl-space-3);
   background: var(--sl-surface-2);
   border-bottom: 1px solid rgba(94, 234, 212, 0.15);
+  cursor: grab;
+  touch-action: none;
+}
+
+.statelight-panel.is-dragging {
+  user-select: none;
+}
+
+.statelight-panel.is-dragging .statelight-panel__header {
+  cursor: grabbing;
 }
 
 .statelight-panel__mark {
