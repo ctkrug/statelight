@@ -1,4 +1,5 @@
 import { PANEL_CSS } from './styles.js';
+import { createGraphView } from './graph-view.js';
 
 const PANEL_CLASS = 'statelight-panel';
 const STYLE_ID = 'statelight-styles';
@@ -18,9 +19,12 @@ function ensureStyles() {
  *
  * @param {object} [options]
  * @param {string} [options.label] - panel title, usually the watched key
+ * @param {object} [options.transitions] - `{ [state]: { [event]: nextState } }`;
+ *   when given, renders the full transition graph instead of falling back
+ *   to the linear trail-only view.
  * @returns {{ el: HTMLElement, mount: (parent?: Element) => object, update: Function, destroy: () => void }}
  */
-export function createPanel({ label = 'State Machine' } = {}) {
+export function createPanel({ label = 'State Machine', transitions } = {}) {
   if (typeof document === 'undefined') {
     throw new Error('Statelight.createPanel requires a DOM environment');
   }
@@ -35,13 +39,27 @@ export function createPanel({ label = 'State Machine' } = {}) {
       <span class="statelight-panel__label"></span>
     </div>
     <div class="statelight-panel__state"></div>
+    <div class="statelight-panel__graph"></div>
     <ul class="statelight-panel__trail"></ul>
   `;
 
   const labelEl = root.querySelector('.statelight-panel__label');
   const stateEl = root.querySelector('.statelight-panel__state');
+  const graphEl = root.querySelector('.statelight-panel__graph');
   const trailEl = root.querySelector('.statelight-panel__trail');
   labelEl.textContent = label;
+
+  // Only mount a graph container when there's an actual graph to show —
+  // an empty <div> left in the DOM for the zero-config trail-only case
+  // would be an "empty graph container", which the wow-moment story
+  // explicitly rules out.
+  const graphView = transitions ? createGraphView(transitions) : null;
+  if (graphView) {
+    root.classList.add('statelight-panel--graph');
+    graphEl.appendChild(graphView.el);
+  } else {
+    graphEl.remove();
+  }
 
   function update(entry, history) {
     stateEl.textContent = String(entry.state);
@@ -50,6 +68,8 @@ export function createPanel({ label = 'State Machine' } = {}) {
     stateEl.classList.remove('is-pulsing');
     void stateEl.offsetWidth;
     stateEl.classList.add('is-pulsing');
+
+    if (graphView) graphView.highlight(entry);
 
     trailEl.innerHTML = '';
     history
@@ -70,6 +90,7 @@ export function createPanel({ label = 'State Machine' } = {}) {
     },
     update,
     destroy() {
+      graphView?.destroy();
       root.remove();
     }
   };
