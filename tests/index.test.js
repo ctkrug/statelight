@@ -134,3 +134,27 @@ test('attach() mounts into a custom container when options.container is given', 
     delete global.window;
   }
 });
+
+test('attach() falls back to document.body when options.container is an explicit null (e.g. a failed querySelector)', async () => {
+  const dom = new JSDOM('<!doctype html><html><body></body></html>');
+  global.document = dom.window.document;
+  global.window = dom.window;
+
+  try {
+    const { attach } = await import('../src/index.js');
+    const machine = { state: 'idle' };
+    const missing = dom.window.document.querySelector('#does-not-exist');
+
+    const handle = attach(machine, { label: 'orphaned container', container: missing });
+
+    assert.ok(
+      dom.window.document.body.querySelector('.statelight-panel'),
+      'a null container should fall back to document.body instead of throwing'
+    );
+
+    handle.detach();
+  } finally {
+    delete global.document;
+    delete global.window;
+  }
+});
