@@ -32,9 +32,9 @@ property somewhere."
 
 - [x] Core `watch()` primitive: transparent state-property instrumentation
       with transition history, usable standalone in Node or the browser.
-- [ ] Floating panel UI: current state, recent-transition trail, collapse/
-      expand, drag to reposition.
-- [ ] Optional transition-map graph rendering with a live-highlighted path.
+- [x] Floating panel UI: current state and recent-transition trail.
+- [x] Optional transition-map graph rendering with a live-highlighted path.
+- [ ] Panel ergonomics: collapse/expand, drag to reposition.
 - [ ] Multi-machine support (attach panels for more than one state machine
       on the same page, stacked or tabbed).
 - [ ] Public demo site with an interactive example machine.
