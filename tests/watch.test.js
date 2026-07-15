@@ -76,6 +76,26 @@ test('unwatch restores a plain writable property', () => {
   assert.equal(watcher.history().length, 1);
 });
 
+test('watch throws when the same target/key is already being watched', () => {
+  // Watching the same property twice (e.g. a dev hot-reload calling
+  // attach() again on the same machine) previously let the second watch()
+  // silently take over the property: the first watcher's closure went
+  // stale, and calling its unwatch() later reverted the property to that
+  // stale value and destroyed the second watcher's instrumentation.
+  const machine = { state: 'idle' };
+  watch(machine, 'state');
+
+  assert.throws(() => watch(machine, 'state'), /already/);
+});
+
+test('watch on the same key succeeds again after the first watcher calls unwatch()', () => {
+  const machine = { state: 'idle' };
+  const first = watch(machine, 'state');
+  first.unwatch();
+
+  assert.doesNotThrow(() => watch(machine, 'state'));
+});
+
 test('watch throws for a missing key', () => {
   assert.throws(() => watch({}, 'state'), TypeError);
 });
