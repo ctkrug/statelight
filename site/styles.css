@@ -109,11 +109,19 @@ a {
   }
 }
 
+.hero__tagline {
+  font-family: var(--sl-font-display);
+  font-size: clamp(1.35rem, 1.5vw + 1rem, 1.75rem);
+  font-weight: 500;
+  color: var(--sl-accent);
+  margin: 0 0 var(--sl-space-3);
+}
+
 .hero__pitch {
   font-family: var(--sl-font-display);
-  font-size: clamp(1.1rem, 1vw + 1rem, 1.35rem);
+  font-size: clamp(1rem, 1vw + 0.85rem, 1.2rem);
   color: var(--sl-text-muted);
-  max-width: 42ch;
+  max-width: 46ch;
   margin: 0 0 var(--sl-space-6);
 }
 
@@ -375,6 +383,55 @@ a {
 .features__mark {
   color: var(--sl-accent);
   flex-shrink: 0;
+}
+
+/* ---------- FAQ ---------- */
+
+.faq {
+  padding: 0 0 var(--sl-space-12);
+}
+
+.faq h2 {
+  font-family: var(--sl-font-display);
+  font-size: 1.75rem;
+  margin: 0 0 var(--sl-space-6);
+}
+
+.faq__list {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sl-space-4);
+}
+
+@media (min-width: 700px) {
+  .faq__list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.faq__item {
+  background: var(--sl-surface-1);
+  border: 1px solid var(--sl-surface-2);
+  border-left: 2px solid var(--sl-accent);
+  border-radius: var(--sl-radius);
+  padding: var(--sl-space-4);
+}
+
+.faq__item dt {
+  font-family: var(--sl-font-display);
+  font-weight: 700;
+  margin-bottom: var(--sl-space-2);
+}
+
+.faq__item dd {
+  margin: 0;
+  color: var(--sl-text-muted);
+  font-size: 0.9rem;
+}
+
+.faq__item code {
+  color: var(--sl-accent);
 }
 
 /* ---------- Footer ---------- */

@@ -2,23 +2,23 @@
 <html lang="en" class="no-js">
   <head>
     <meta charset="utf-8" />
-    <title>Statelight — a live debug panel for hand-rolled state machines</title>
+    <title>Statelight: watch your state machine light up, live</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Drop one script tag next to any plain-object JavaScript state machine and watch its current state and transition path light up live."
+      content="A floating debug panel for hand-rolled JavaScript state machines. Drop in one script tag and see the current state and transition path light up live."
     />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Statelight — a live debug panel for hand-rolled state machines" />
+    <meta property="og:title" content="Statelight: watch your state machine light up, live" />
     <meta
       property="og:description"
-      content="Drop one script tag next to any plain-object JavaScript state machine and watch its current state and transition path light up live."
+      content="A floating debug panel for hand-rolled JavaScript state machines. Drop in one script tag and see the current state and transition path light up live."
     />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Statelight — a live debug panel for hand-rolled state machines" />
+    <meta name="twitter:title" content="Statelight: watch your state machine light up, live" />
     <meta
       name="twitter:description"
-      content="Drop one script tag next to any plain-object JavaScript state machine and watch its current state and transition path light up live."
+      content="A floating debug panel for hand-rolled JavaScript state machines. Drop in one script tag and see the current state and transition path light up live."
     />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="theme-color" content="#0b1220" />
@@ -35,10 +35,12 @@
           <div class="hero__grid">
             <div class="hero__copy">
               <h1 class="wordmark">State<span class="wordmark__light" id="wordmark-light">light</span></h1>
+              <p class="hero__tagline">Watch your state machine light up, live.</p>
               <p class="hero__pitch">
                 Drop one script tag next to any hand-rolled JS state machine
-                and a floating panel shows its current state, lighting up
-                the transition path live as you interact.
+                and a floating panel shows its current state, lighting up the
+                transition path live as you interact. No framework, no build
+                step, nothing to import into your own code.
               </p>
               <pre class="hero__snippet"><code>&lt;script type="module"&gt;
   import { attach } from
@@ -66,7 +68,7 @@
             <div class="hero__demo">
               <div class="demo-card">
                 <p class="demo-card__noscript">
-                  This demo needs JavaScript enabled — Statelight attaches to
+                  This demo needs JavaScript enabled. Statelight attaches to
                   a real state machine live on this page.
                 </p>
                 <div class="demo-card__light-wrap">
@@ -86,7 +88,7 @@
             <li class="how__step">
               <span class="how__step-number">1</span>
               <h3>Add one script tag</h3>
-              <p>No bundler, no npm install required to try it — import straight from a CDN.</p>
+              <p>No bundler, no npm install required to try it. Import straight from a CDN.</p>
             </li>
             <li class="how__step">
               <span class="how__step-number">2</span>
@@ -96,7 +98,7 @@
             <li class="how__step">
               <span class="how__step-number">3</span>
               <h3>Watch it light up</h3>
-              <p>Every assignment to <code>machine.state</code> updates the panel and pulses the live edge — instantly, with no polling.</p>
+              <p>Every assignment to <code>machine.state</code> updates the panel and pulses the live edge instantly, with no polling.</p>
             </li>
           </ol>
         </section>
@@ -106,15 +108,69 @@
           <ul class="features__list">
             <li><span class="features__mark">&#9670;</span>Live transition graph with the active edge lit up as your machine moves through it.</li>
             <li><span class="features__mark">&#9670;</span>Collapsible, draggable panel that remembers where you left it, per page.</li>
-            <li><span class="features__mark">&#9670;</span>Watch more than one machine on the same page — panels cascade instead of overlapping.</li>
-            <li><span class="features__mark">&#9670;</span>No dependencies, no build step, no framework lock-in — works with any plain object.</li>
+            <li><span class="features__mark">&#9670;</span>Watch more than one machine on the same page: panels cascade instead of overlapping.</li>
+            <li><span class="features__mark">&#9670;</span>No dependencies, no build step, no framework lock-in. Works with any plain object.</li>
           </ul>
+        </section>
+
+        <section class="faq" id="faq">
+          <h2>Questions</h2>
+          <dl class="faq__list">
+            <div class="faq__item">
+              <dt>What is Statelight?</dt>
+              <dd>
+                A small debugger for hand-rolled JavaScript state machines. It
+                attaches to a plain object that has a state property, shows the
+                current state in a floating panel, and, when you hand it a
+                transition map, draws the state graph and lights up each edge as
+                your machine moves through it.
+              </dd>
+            </div>
+            <div class="faq__item">
+              <dt>Do I need XState or a state machine library?</dt>
+              <dd>
+                No. Statelight is built for the machines you already wrote by
+                hand: a <code>state</code> field and some <code>if</code> or
+                <code>switch</code> logic. There is nothing to migrate to and no
+                pattern to adopt. If you do use a library, Statelight still works
+                as long as the state lives on a readable, writable property.
+              </dd>
+            </div>
+            <div class="faq__item">
+              <dt>How does it watch state without changing my code?</dt>
+              <dd>
+                It replaces the watched property with a transparent
+                getter/setter. Reads and writes behave exactly as before, so
+                <code>machine.state = 'running'</code> keeps working unchanged
+                while every transition is recorded and rendered. Call
+                <code>detach()</code> to restore the plain property.
+              </dd>
+            </div>
+            <div class="faq__item">
+              <dt>Does it work with React, Vue, or Svelte?</dt>
+              <dd>
+                It is framework-agnostic. Statelight only cares about a plain
+                object with a mutable state property, so it runs next to any
+                framework or none at all. It is meant for debugging your own
+                logic, not for driving a component tree.
+              </dd>
+            </div>
+            <div class="faq__item">
+              <dt>How big is it, and what does it depend on?</dt>
+              <dd>
+                Zero runtime dependencies, and the shipped bundle targets under
+                3kb gzipped. You can drop it in from a CDN with one script tag,
+                or install it from npm and bundle it yourself.
+              </dd>
+            </div>
+          </dl>
         </section>
       </main>
 
       <footer class="footer">
         <span>MIT licensed</span>
         <a href="https://github.com/ctkrug/statelight">github.com/ctkrug/statelight</a>
+        <a href="https://apps.charliekrug.com">More by Charlie Krug</a>
       </footer>
     </div>
 
