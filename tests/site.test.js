@@ -27,3 +27,17 @@ test('site/index.html declares a real favicon and viewport meta', () => {
   assert.match(html, /rel="icon"[^>]*href="\.\/favicon\.svg"/);
   assert.match(html, /name="viewport"/);
 });
+
+test('site/index.html declares Open Graph/Twitter metadata and a theme color', () => {
+  assert.match(html, /property="og:title" content="[^"]+"/);
+  assert.match(html, /property="og:description"[\s\S]*?content="[^"]+"/);
+  assert.match(html, /name="twitter:card" content="summary"/);
+  assert.match(html, /name="theme-color" content="#0b1220"/);
+});
+
+test('site/index.html hides non-functional demo controls until main.js runs', () => {
+  assert.match(html, /<html lang="en" class="no-js">/);
+
+  const mainJs = readFileSync(new URL('main.js', siteDir), 'utf8');
+  assert.match(mainJs, /classList\.remove\(['"]no-js['"]\)/);
+});
