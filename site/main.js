@@ -1,5 +1,7 @@
 import { attach } from '../src/index.js';
 
+document.documentElement.classList.remove('no-js');
+
 const LIGHT_COLORS = {
   red: 'var(--sl-danger)',
   green: 'var(--sl-success)',
