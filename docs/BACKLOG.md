@@ -6,41 +6,41 @@ by a later BUILD/QA run — no vibes-based "works well."
 
 ## Epic 1 — Live transition graph (the wow moment)
 
-### [ ] 1.1 Render the transition graph and light up the live path — **WOW MOMENT**
+### [x] 1.1 Render the transition graph and light up the live path — **WOW MOMENT**
 
 The demo: pass a `transitions` map to `attach()` and the panel draws every
 state as a node, every event as an edge, and glows the edge just traversed
 as the machine moves through it live.
 
-- [ ] Passing `options.transitions` (shape: `{ [state]: { [event]: nextState } }`)
+- [x] Passing `options.transitions` (shape: `{ [state]: { [event]: nextState } }`)
       renders one node per state referenced in the map and one edge per
       `state -> event -> nextState` entry.
-- [ ] The edge for the most recent transition gets a visible highlight
+- [x] The edge for the most recent transition gets a visible highlight
       (the existing cyan pulse language) for at least 600ms after it fires;
       the previous highlight clears.
-- [ ] Calling `attach()` without a `transitions` option falls back to the
+- [x] Calling `attach()` without a `transitions` option falls back to the
       current linear trail view with no error and no empty graph container.
 
-### [ ] 1.2 Label trail entries and edges with the triggering event
+### [x] 1.2 Label trail entries and edges with the triggering event
 
-- [ ] When a transition's `event` is set (via `options.eventName` or a
+- [x] When a transition's `event` is set (via `options.eventName` or a
       future per-call override), the trail entry and the corresponding
       graph edge display the event name alongside the state name.
-- [ ] Transitions with no event set render state-only, with no empty
+- [x] Transitions with no event set render state-only, with no empty
       label element left in the DOM.
 
-### [ ] 1.3 Auto-layout the graph for up to ~12 states without overlap
+### [x] 1.3 Auto-layout the graph for up to ~12 states without overlap
 
-- [ ] A `transitions` map covering 2 to 12 distinct states renders with no
+- [x] A `transitions` map covering 2 to 12 distinct states renders with no
       two node bounding boxes overlapping at the panel's default width.
-- [ ] Re-rendering after a new transition (or a resized panel) does not
+- [x] Re-rendering after a new transition (or a resized panel) does not
       leave stale/duplicate edge elements in the DOM.
 
-### [ ] 1.4 Design polish — graph matches the blueprint direction
+### [x] 1.4 Design polish — graph matches the blueprint direction
 
-- [ ] Nodes and edges use the tokens and glow/pulse language defined in
+- [x] Nodes and edges use the tokens and glow/pulse language defined in
       `docs/DESIGN.md` (no ad hoc colors introduced for the graph).
-- [ ] The idle (non-active) state of nodes/edges is legible against
+- [x] The idle (non-active) state of nodes/edges is legible against
       `--sl-surface-1` at the panel's default width — verified by eye at
       1x and squint-test contrast.
 
