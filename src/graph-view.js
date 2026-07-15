@@ -39,6 +39,17 @@ export function createGraphView(transitions) {
     const to = positions.get(edge.to);
     const group = svgEl('g', { class: 'statelight-graph__edge', 'data-edge-id': edge.id });
     group.appendChild(svgEl('path', { class: 'statelight-graph__edge-line', d: straightPath(from, to, NODE_RADIUS) }));
+
+    if (edge.event) {
+      const label = svgEl('text', {
+        class: 'statelight-graph__edge-label',
+        x: (from.x + to.x) / 2,
+        y: (from.y + to.y) / 2 - 6
+      });
+      label.textContent = edge.event;
+      group.appendChild(label);
+    }
+
     edgesGroup.appendChild(group);
   }
 
