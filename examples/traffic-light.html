@@ -62,7 +62,15 @@
         trafficLight.state = NEXT[trafficLight.state];
       }
 
-      attach(trafficLight, { label: 'traffic light', eventName: 'advance' });
+      attach(trafficLight, {
+        label: 'traffic light',
+        eventName: 'advance',
+        transitions: {
+          red: { advance: 'green' },
+          green: { advance: 'yellow' },
+          yellow: { advance: 'red' }
+        }
+      });
 
       const lightEl = document.getElementById('light');
       const labelEl = document.getElementById('label');
