@@ -169,6 +169,61 @@ test('collapsed state persists across panels sharing a label via localStorage', 
   });
 });
 
+function pointerEvent(win, type, opts) {
+  return new win.PointerEvent(type, { bubbles: true, cancelable: true, pointerId: 1, ...opts });
+}
+
+test('dragging the header repositions the panel and clicking the toggle still collapses it', async () => {
+  await withDom(async (dom) => {
+    const { createPanel } = await import('../src/panel.js');
+    const panel = createPanel({ label: 'demo' });
+    panel.mount(dom.window.document.body);
+    panel.el.getBoundingClientRect = () => ({ left: 0, top: 0, width: 0, height: 0 });
+
+    const header = panel.el.querySelector('.statelight-panel__header');
+    header.dispatchEvent(pointerEvent(dom.window, 'pointerdown', { clientX: 0, clientY: 0 }));
+    header.dispatchEvent(pointerEvent(dom.window, 'pointermove', { clientX: 40, clientY: 25 }));
+
+    assert.equal(panel.el.style.left, '40px');
+    assert.equal(panel.el.style.top, '25px');
+    assert.ok(panel.el.classList.contains('is-dragging'));
+
+    header.dispatchEvent(pointerEvent(dom.window, 'pointerup', { clientX: 40, clientY: 25 }));
+    assert.equal(panel.el.classList.contains('is-dragging'), false);
+
+    // The toggle button lives inside the header — it must still work
+    // as a click and not be swallowed by the drag handling.
+    panel.el.querySelector('.statelight-panel__toggle').dispatchEvent(new dom.window.Event('click', { bubbles: true }));
+    assert.ok(panel.el.classList.contains('is-collapsed'));
+
+    panel.destroy();
+  });
+});
+
+test('a dragged position persists across panels sharing a label via localStorage', async () => {
+  await withPersistentDom(async (dom) => {
+    const { createPanel } = await import('../src/panel.js');
+    const first = createPanel({ label: 'positioned-demo' });
+    first.mount(dom.window.document.body);
+    first.el.getBoundingClientRect = () => ({ left: 10, top: 10, width: 0, height: 0 });
+
+    const header = first.el.querySelector('.statelight-panel__header');
+    header.dispatchEvent(pointerEvent(dom.window, 'pointerdown', { clientX: 10, clientY: 10 }));
+    first.el.getBoundingClientRect = () => ({ left: 60, top: 45, width: 0, height: 0 });
+    header.dispatchEvent(pointerEvent(dom.window, 'pointermove', { clientX: 60, clientY: 45 }));
+    header.dispatchEvent(pointerEvent(dom.window, 'pointerup', { clientX: 60, clientY: 45 }));
+    first.destroy();
+
+    const second = createPanel({ label: 'positioned-demo' });
+    second.mount(dom.window.document.body);
+
+    assert.equal(second.el.style.left, '60px');
+    assert.equal(second.el.style.top, '45px');
+
+    second.destroy();
+  });
+});
+
 test('createPanel with a transitions option renders the graph and highlights on update', async () => {
   await withDom(async (dom) => {
     const { createPanel } = await import('../src/panel.js');
