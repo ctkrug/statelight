@@ -98,6 +98,58 @@ test('createGraphView renders a self-transition as a loop with a non-degenerate 
   });
 });
 
+test('highlight() marks the current node and the traversed edge as active', async () => {
+  await withDom(async () => {
+    const { createGraphView } = await import('../src/graph-view.js');
+    const view = createGraphView({ idle: { start: 'running' } });
+
+    view.highlight({ from: 'idle', state: 'running', event: 'start' });
+
+    assert.ok(view.el.querySelector('[data-node-id="running"]').classList.contains('is-current'));
+    assert.ok(
+      view.el.querySelector('[data-edge-id]').classList.contains('is-active'),
+      'the idle -> running edge should be active'
+    );
+
+    view.destroy();
+  });
+});
+
+test('highlight() clears the previous highlight when a new transition fires', async () => {
+  await withDom(async () => {
+    const { createGraphView } = await import('../src/graph-view.js');
+    const view = createGraphView({
+      idle: { start: 'running' },
+      running: { finish: 'idle' }
+    });
+
+    view.highlight({ from: 'idle', state: 'running', event: 'start' });
+    const firstEdge = view.el.querySelector('[data-edge-id="idle::start::running"]');
+    assert.ok(firstEdge.classList.contains('is-active'));
+
+    view.highlight({ from: 'running', state: 'idle', event: 'finish' });
+    const secondEdge = view.el.querySelector('[data-edge-id="running::finish::idle"]');
+
+    assert.equal(firstEdge.classList.contains('is-active'), false);
+    assert.ok(secondEdge.classList.contains('is-active'));
+    assert.equal(view.el.querySelector('[data-node-id="running"]').classList.contains('is-current'), false);
+    assert.ok(view.el.querySelector('[data-node-id="idle"]').classList.contains('is-current'));
+
+    view.destroy();
+  });
+});
+
+test('destroy() cancels any pending highlight timer', async () => {
+  await withDom(async () => {
+    const { createGraphView } = await import('../src/graph-view.js');
+    const view = createGraphView({ idle: { start: 'running' } });
+
+    view.highlight({ from: 'idle', state: 'running', event: 'start' });
+    // Should not throw and should not leave a dangling timer running past destroy.
+    assert.doesNotThrow(() => view.destroy());
+  });
+});
+
 test('createGraphView is an SVG element sized from the layout', async () => {
   await withDom(async () => {
     const { createGraphView } = await import('../src/graph-view.js');
