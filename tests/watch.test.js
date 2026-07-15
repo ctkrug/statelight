@@ -51,6 +51,20 @@ test('historyLimit caps the retained history length', () => {
   assert.equal(history[history.length - 1].state, 3);
 });
 
+test('historyLimit: 0 still caps history instead of falling back to unbounded growth', () => {
+  const machine = { state: 0 };
+  const watcher = watch(machine, 'state', { historyLimit: 0 });
+
+  for (let i = 1; i <= 5; i++) machine.state = i;
+
+  const history = watcher.history();
+  assert.ok(
+    history.length <= 1,
+    `historyLimit: 0 should not silently mean "unlimited" (got length ${history.length})`
+  );
+  assert.equal(history[history.length - 1].state, 5);
+});
+
 test('unwatch restores a plain writable property', () => {
   const machine = { state: 'idle' };
   const watcher = watch(machine, 'state');
