@@ -161,8 +161,12 @@ export function createPanel({ label = 'State Machine', transitions } = {}) {
 
   return {
     el: root,
-    mount(parent = document.body) {
-      parent.appendChild(root);
+    mount(parent) {
+      // `parent = document.body` as a default parameter only covers a
+      // missing/undefined argument, not an explicit null — which is exactly
+      // what a failed querySelector() call site (a realistic caller mistake)
+      // passes through attach()'s options.container.
+      (parent || document.body).appendChild(root);
       return this;
     },
     update,
