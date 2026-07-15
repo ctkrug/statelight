@@ -6,6 +6,7 @@ import { makeDraggable } from './drag.js';
 const PANEL_CLASS = 'statelight-panel';
 const STYLE_ID = 'statelight-styles';
 const TRAIL_LENGTH = 6;
+const STACK_OFFSET_PX = 12;
 
 function ensureStyles() {
   if (document.getElementById(STYLE_ID)) return;
@@ -13,6 +14,23 @@ function ensureStyles() {
   style.id = STYLE_ID;
   style.textContent = PANEL_CSS;
   document.head.appendChild(style);
+}
+
+// Tracks how many currently-mounted panels are sitting at their default
+// (never dragged) position, so each new one cascades a little further
+// from the corner instead of stacking exactly on top of the last —
+// multi-machine attach() calls shouldn't produce visually overlapping
+// panels out of the box. Slots are reused (LIFO) as panels detach.
+const openStackSlots = [];
+let nextStackSlot = 0;
+
+function claimStackSlot() {
+  if (openStackSlots.length) return openStackSlots.pop();
+  return nextStackSlot++;
+}
+
+function releaseStackSlot(slot) {
+  openStackSlots.push(slot);
 }
 
 /**
@@ -86,6 +104,7 @@ export function createPanel({ label = 'State Machine', transitions } = {}) {
     }
   });
 
+  let stackSlot = null;
   const savedPosition = safeGet(positionStorageKey);
   if (savedPosition) {
     try {
@@ -94,6 +113,13 @@ export function createPanel({ label = 'State Machine', transitions } = {}) {
     } catch {
       // Malformed/foreign data under this key — ignore and keep the default position.
     }
+  }
+  if (!root.style.left) {
+    // No saved drag position was applied above, so this panel sits at the
+    // CSS default corner — cascade it so it doesn't overlap any other
+    // panel that's also at its default position.
+    stackSlot = claimStackSlot();
+    if (stackSlot > 0) root.style.setProperty('--sl-stack-offset', `${stackSlot * STACK_OFFSET_PX}px`);
   }
 
   // Only mount a graph container when there's an actual graph to show —
@@ -138,6 +164,7 @@ export function createPanel({ label = 'State Machine', transitions } = {}) {
     },
     update,
     destroy() {
+      if (stackSlot !== null) releaseStackSlot(stackSlot);
       drag.destroy();
       graphView?.destroy();
       root.remove();
