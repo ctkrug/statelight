@@ -65,7 +65,7 @@ export function createPanel({ label = 'State Machine', transitions } = {}) {
         <span class="statelight-panel__toggle-icon" aria-hidden="true">&#9662;</span>
       </button>
     </div>
-    <div class="statelight-panel__state"></div>
+    <div class="statelight-panel__state" role="status" aria-live="polite"></div>
     <div class="statelight-panel__graph"></div>
     <ul class="statelight-panel__trail"></ul>
   `;
