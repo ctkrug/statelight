@@ -41,7 +41,6 @@ export const PANEL_CSS = `
 .statelight-panel__header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--sl-space-2);
   padding: var(--sl-space-2) var(--sl-space-3);
   background: var(--sl-surface-2);
@@ -59,6 +58,65 @@ export const PANEL_CSS = `
   text-transform: uppercase;
   font-size: 11px;
   letter-spacing: 0.06em;
+}
+
+.statelight-panel__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--sl-space-1);
+  margin-left: auto;
+  padding: var(--sl-space-1);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--sl-radius);
+  color: var(--sl-text-muted);
+  cursor: pointer;
+  transition: color 160ms ease-out, border-color 160ms ease-out, background 160ms ease-out;
+}
+
+.statelight-panel__toggle:hover {
+  color: var(--sl-text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.statelight-panel__toggle:focus-visible {
+  outline: none;
+  border-color: var(--sl-accent);
+  box-shadow: 0 0 0 2px rgba(94, 234, 212, 0.25);
+}
+
+.statelight-panel__toggle:active {
+  transform: scale(0.92);
+}
+
+.statelight-panel__toggle-icon {
+  display: inline-block;
+  transition: transform 160ms ease-out;
+}
+
+.statelight-panel.is-collapsed .statelight-panel__toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.statelight-panel__unread {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sl-accent-support);
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 160ms ease-out, transform 160ms ease-out;
+}
+
+.statelight-panel__unread.is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.statelight-panel.is-collapsed .statelight-panel__state,
+.statelight-panel.is-collapsed .statelight-panel__graph,
+.statelight-panel.is-collapsed .statelight-panel__trail {
+  display: none;
 }
 
 .statelight-panel__state {
