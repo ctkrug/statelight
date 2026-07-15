@@ -30,6 +30,20 @@ graph container is rendered.
 Returns `{ watcher, panel, detach() }`. Call `detach()` to unmount the
 panel and restore `target[stateKey]` to a plain writable property.
 
+### Panel ergonomics
+
+- **Collapse/expand:** click the toggle button (▾) in the header to shrink
+  the panel to just its header. A dot lights up on the toggle if a
+  transition happens while collapsed; expanding clears it. State persists
+  across a reload via `localStorage`, namespaced by `label`.
+- **Drag to reposition:** drag the header (anywhere but the toggle button)
+  to move the panel; it's clamped so it always stays fully on-screen.
+  Position persists the same way as collapsed state.
+- **Multiple machines:** call `attach()` once per machine — each gets its
+  own independent panel. Panels left at their default position cascade
+  diagonally so each one's header stays visible; drag any of them to fully
+  separate it. `detach()` only ever affects its own panel/watcher.
+
 ## `watch(target, key, options?)`
 
 The lower-level primitive `attach()` is built on. Instruments the property
@@ -57,6 +71,5 @@ panel.destroy();
 
 ## Not yet implemented (see `docs/BACKLOG.md`)
 
-- Dragging/collapsing the panel.
-- Attaching more than one panel to the same page without manual
-  positioning.
+- Packaging/distribution polish (tarball install check, entry-point audit)
+  and the interactive landing page — see epic 3 in `docs/BACKLOG.md`.
