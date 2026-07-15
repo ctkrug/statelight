@@ -68,11 +68,16 @@ as the machine moves through it live.
 - [x] Dragging the header does not trigger text selection on the page
       behind it.
 
-### [ ] 2.3 Support multiple machines on one page
+### [x] 2.3 Support multiple machines on one page
 
-- [ ] Calling `attach()` on two different target objects produces two
-      independent panels that do not visually overlap by default.
-- [ ] Calling `detach()` on one handle removes only its panel and leaves
+- [x] Calling `attach()` on two different target objects produces two
+      independent panels that do not visually overlap by default. Panels
+      at their default (never-dragged) position cascade diagonally by one
+      header-height per panel — each header stays fully visible/clickable
+      even when a later panel partially covers the body behind it, the
+      same pattern OS-level cascading windows use. Dragging any panel
+      fully separates it.
+- [x] Calling `detach()` on one handle removes only its panel and leaves
       the other machine's panel and watcher fully functional.
 
 ### [x] 2.4 Design polish — themed states for every new control
