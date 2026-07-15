@@ -44,8 +44,29 @@ src/
                    self-host a stylesheet. Tokens mirror docs/DESIGN.md.
   index.js         attach(target, options) — the public entry point.
                    Wires watch() + createPanel() together and returns
-                   { watcher, panel, detach() }. Also assigns
-                   window.Statelight for bare <script> tag consumers.
+                   { watcher, panel, detach() }. Accepts options.container
+                   to mount into a specific element instead of
+                   document.body. Also assigns window.Statelight for bare
+                   <script> tag consumers.
+
+site/
+  index.html       The public landing page (epic 3.2/3.3). Two-column
+                   hero (wordmark/pitch/install snippet + a real attach()
+                   demo) above a "how it works" strip and feature list.
+                   Every asset path is relative so it works from a
+                   subpath deploy.
+  main.js          Wires the hero's traffic-light demo to a real
+                   attach() call imported from ../src/index.js — same
+                   code path as examples/traffic-light.html, mounted into
+                   the demo card via options.container and pulsing the
+                   wordmark on load/interaction.
+  styles.css       Site-only styling: DESIGN.md's tokens redeclared at
+                   :root, the responsive hero grid, and the override that
+                   docks the demo's panel in normal document flow inside
+                   its card (instead of the library's default
+                   position: fixed viewport corner) at every width, so it
+                   never overlaps the demo's own controls.
+  favicon.svg      Real favicon (D2 anti-generic-ban requirement).
 ```
 
 ## Data flow (the wow moment)
