@@ -85,6 +85,92 @@ export const PANEL_CSS = `
   }
 }
 
+.statelight-panel--graph {
+  width: 360px;
+}
+
+.statelight-panel__graph {
+  padding: var(--sl-space-2) var(--sl-space-3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.statelight-graph {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.statelight-graph__node-circle {
+  fill: var(--sl-surface-2);
+  stroke: var(--sl-text-muted);
+  stroke-width: 1.5;
+  transition: stroke 160ms ease-out, fill 160ms ease-out;
+}
+
+.statelight-graph__node-label {
+  fill: var(--sl-text);
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+
+.statelight-graph__node.is-current .statelight-graph__node-circle {
+  fill: rgba(94, 234, 212, 0.12);
+  stroke: var(--sl-accent);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 6px rgba(94, 234, 212, 0.65));
+}
+
+.statelight-graph__edge-line {
+  fill: none;
+  stroke: var(--sl-text-muted);
+  stroke-width: 1.25;
+  opacity: 0.55;
+  transition: stroke 160ms ease-out, opacity 160ms ease-out;
+}
+
+.statelight-graph__edge-label {
+  fill: var(--sl-text-muted);
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9px;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.statelight-graph__arrowhead {
+  fill: var(--sl-text-muted);
+  opacity: 0.55;
+}
+
+.statelight-graph__edge.is-active .statelight-graph__edge-line {
+  stroke: var(--sl-accent);
+  opacity: 1;
+  animation: statelight-edge-pulse 600ms ease-out;
+}
+
+.statelight-graph__edge.is-active .statelight-graph__arrowhead {
+  fill: var(--sl-accent);
+  opacity: 1;
+}
+
+.statelight-graph__edge.is-active .statelight-graph__edge-label {
+  fill: var(--sl-accent);
+}
+
+@keyframes statelight-edge-pulse {
+  0% {
+    filter: drop-shadow(0 0 0 rgba(94, 234, 212, 0));
+  }
+  20% {
+    filter: drop-shadow(0 0 6px rgba(94, 234, 212, 0.85));
+  }
+  100% {
+    filter: drop-shadow(0 0 0 rgba(94, 234, 212, 0));
+  }
+}
+
 .statelight-panel__trail {
   list-style: none;
   margin: 0;
@@ -109,7 +195,8 @@ export const PANEL_CSS = `
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .statelight-panel__state.is-pulsing {
+  .statelight-panel__state.is-pulsing,
+  .statelight-graph__edge.is-active .statelight-graph__edge-line {
     animation: none;
   }
 }
