@@ -1,6 +1,7 @@
 import { PANEL_CSS } from './styles.js';
 import { createGraphView } from './graph-view.js';
 import { safeGet, safeSet } from './storage.js';
+import { makeDraggable } from './drag.js';
 
 const PANEL_CLASS = 'statelight-panel';
 const STYLE_ID = 'statelight-styles';
@@ -76,6 +77,25 @@ export function createPanel({ label = 'State Machine', transitions } = {}) {
     safeSet(collapseStorageKey, collapsed ? '1' : '0');
   });
 
+  const positionStorageKey = `statelight:${label}:position`;
+  const headerEl = root.querySelector('.statelight-panel__header');
+  const drag = makeDraggable(headerEl, root, {
+    exclude: '.statelight-panel__toggle',
+    onDragEnd(position) {
+      safeSet(positionStorageKey, JSON.stringify(position));
+    }
+  });
+
+  const savedPosition = safeGet(positionStorageKey);
+  if (savedPosition) {
+    try {
+      const { left, top } = JSON.parse(savedPosition);
+      if (Number.isFinite(left) && Number.isFinite(top)) drag.setPosition(left, top);
+    } catch {
+      // Malformed/foreign data under this key — ignore and keep the default position.
+    }
+  }
+
   // Only mount a graph container when there's an actual graph to show —
   // an empty <div> left in the DOM for the zero-config trail-only case
   // would be an "empty graph container", which the wow-moment story
@@ -118,6 +138,7 @@ export function createPanel({ label = 'State Machine', transitions } = {}) {
     },
     update,
     destroy() {
+      drag.destroy();
       graphView?.destroy();
       root.remove();
     }
