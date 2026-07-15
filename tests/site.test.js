@@ -18,8 +18,11 @@ test('site/index.html only uses relative asset paths', () => {
 test('site/index.html attaches a real Statelight instance, not a static mockup', () => {
   assert.match(html, /type="module" src="\.\/main\.js"/);
 
+  // Imports the bundled library that ships inside site/ (so the deployed
+  // static directory is self-contained) and calls attach() — a real
+  // instance, not a hand-written imitation of the panel's markup.
   const mainJs = readFileSync(new URL('main.js', siteDir), 'utf8');
-  assert.match(mainJs, /from ['"]\.\.\/src\/index\.js['"]/);
+  assert.match(mainJs, /from ['"]\.\/statelight\.js['"]/);
   assert.match(mainJs, /attach\(/);
 });
 

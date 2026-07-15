@@ -1,4 +1,4 @@
-import { attach } from '../src/index.js';
+import { attach } from './statelight.js';
 
 document.documentElement.classList.remove('no-js');
 

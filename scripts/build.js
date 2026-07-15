@@ -26,4 +26,17 @@ await build({
 
 await writeFile('dist/statelight.css', PANEL_CSS.trimStart());
 
-console.log('Build complete: dist/statelight.js, dist/statelight.min.js, dist/statelight.css');
+// Minified ESM copy the landing page imports directly. site/ is deployed as
+// a standalone static directory, so its demo can't reach up into ../src; it
+// imports this self-contained bundle instead, keeping the live demo running
+// the real library rather than a mockup.
+await build({
+  entryPoints: ['src/index.js'],
+  bundle: true,
+  format: 'esm',
+  minify: true,
+  outfile: 'site/statelight.js',
+  target: ['es2019']
+});
+
+console.log('Build complete: dist/statelight.{js,min.js,css}, site/statelight.js');
