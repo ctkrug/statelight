@@ -38,7 +38,7 @@ function releaseStackSlot(slot) {
 
 /**
  * Renders the floating debug panel: current state, a recent-transition
- * trail, and (in a later story) the live transition-graph diagram.
+ * trail, and (when given a transition map) the live transition-graph diagram.
  *
  * @param {object} [options]
  * @param {string} [options.label] - panel title, usually the watched key
@@ -125,10 +125,9 @@ export function createPanel({ label = 'State Machine', transitions } = {}) {
     if (stackSlot > 0) root.style.setProperty('--sl-stack-offset', `${stackSlot * STACK_OFFSET_PX}px`);
   }
 
-  // Only mount a graph container when there's an actual graph to show —
-  // an empty <div> left in the DOM for the zero-config trail-only case
-  // would be an "empty graph container", which the wow-moment story
-  // explicitly rules out.
+  // Only mount a graph container when there's an actual graph to show. An
+  // empty <div> left in the DOM for the zero-config trail-only case would
+  // be a dead, empty graph container, so drop it entirely instead.
   const graphView = transitions ? createGraphView(transitions) : null;
   if (graphView) {
     root.classList.add('statelight-panel--graph');
