@@ -20,8 +20,12 @@ export const PANEL_CSS = `
   --sl-space-4: 16px;
 
   position: fixed;
-  right: var(--sl-space-4);
-  bottom: var(--sl-space-4);
+  /* --sl-stack-offset is set per instance by panel.js so multiple
+     attach()ed panels cascade instead of stacking on top of each other
+     at the default position; a dragged/persisted position overrides it
+     with an inline left/top that wins over these. */
+  right: calc(var(--sl-space-4) + var(--sl-stack-offset, 0px));
+  bottom: calc(var(--sl-space-4) + var(--sl-stack-offset, 0px));
   z-index: 2147483647;
   width: 280px;
   max-width: calc(100vw - 2 * var(--sl-space-4));
