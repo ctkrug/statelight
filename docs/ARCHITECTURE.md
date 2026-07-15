@@ -10,7 +10,11 @@ surface, and `docs/DESIGN.md` for the visual language.
 src/
   statelight.js   watch(target, key, options) — the core primitive.
                    Object.defineProperty-instruments a single property,
-                   records history, notifies subscribers. No DOM.
+                   records history, notifies subscribers. No DOM. Tracks
+                   in-flight (target, key) pairs in a module-level WeakMap
+                   so watching an already-watched property throws instead
+                   of silently stealing the accessor out from under the
+                   first watcher.
   graph.js         Pure, DOM-free graph logic:
                      buildTransitionGraph(transitions) -> { nodes, edges }
                      layoutGraph(nodes, opts)           -> circular auto-layout
