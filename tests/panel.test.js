@@ -14,6 +14,22 @@ async function withDom(run) {
   }
 }
 
+// A real (non-opaque-origin) URL so localStorage-backed persistence tests
+// can actually read/write instead of exercising storage.js's no-op path.
+async function withPersistentDom(run) {
+  const dom = new JSDOM('<!doctype html><html><body></body></html>', { url: 'http://localhost/' });
+  global.document = dom.window.document;
+  global.window = dom.window;
+  global.localStorage = dom.window.localStorage;
+  try {
+    return await run(dom);
+  } finally {
+    delete global.document;
+    delete global.window;
+    delete global.localStorage;
+  }
+}
+
 test('createPanel renders the current state and a reversed trail', async () => {
   await withDom(async (dom) => {
     const { createPanel } = await import('../src/panel.js');
@@ -87,6 +103,69 @@ test('createPanel without a transitions option leaves no graph container in the 
     assert.equal(panel.el.querySelector('.statelight-graph'), null);
 
     panel.destroy();
+  });
+});
+
+test('clicking the toggle collapses the panel and hides its content', async () => {
+  await withDom(async (dom) => {
+    const { createPanel } = await import('../src/panel.js');
+    const panel = createPanel({ label: 'demo' });
+    panel.mount(dom.window.document.body);
+
+    const toggle = panel.el.querySelector('.statelight-panel__toggle');
+    assert.equal(toggle.getAttribute('aria-expanded'), 'true');
+    assert.equal(panel.el.classList.contains('is-collapsed'), false);
+
+    toggle.dispatchEvent(new dom.window.Event('click', { bubbles: true }));
+
+    assert.equal(panel.el.classList.contains('is-collapsed'), true);
+    assert.equal(toggle.getAttribute('aria-expanded'), 'false');
+
+    toggle.dispatchEvent(new dom.window.Event('click', { bubbles: true }));
+    assert.equal(panel.el.classList.contains('is-collapsed'), false);
+    assert.equal(toggle.getAttribute('aria-expanded'), 'true');
+
+    panel.destroy();
+  });
+});
+
+test('a transition while collapsed shows an unread indicator, cleared on expand', async () => {
+  await withDom(async (dom) => {
+    const { createPanel } = await import('../src/panel.js');
+    const panel = createPanel({ label: 'demo' });
+    panel.mount(dom.window.document.body);
+
+    const toggle = panel.el.querySelector('.statelight-panel__toggle');
+    const unread = panel.el.querySelector('.statelight-panel__unread');
+    toggle.dispatchEvent(new dom.window.Event('click', { bubbles: true }));
+    assert.equal(unread.classList.contains('is-visible'), false);
+
+    panel.update({ state: 'running' }, [{ state: 'idle' }, { state: 'running' }]);
+    assert.equal(unread.classList.contains('is-visible'), true);
+
+    toggle.dispatchEvent(new dom.window.Event('click', { bubbles: true }));
+    assert.equal(unread.classList.contains('is-visible'), false);
+
+    panel.destroy();
+  });
+});
+
+test('collapsed state persists across panels sharing a label via localStorage', async () => {
+  await withPersistentDom(async (dom) => {
+    const { createPanel } = await import('../src/panel.js');
+    const first = createPanel({ label: 'persisted-demo' });
+    first.mount(dom.window.document.body);
+    first.el.querySelector('.statelight-panel__toggle').dispatchEvent(
+      new dom.window.Event('click', { bubbles: true })
+    );
+    assert.ok(first.el.classList.contains('is-collapsed'));
+    first.destroy();
+
+    const second = createPanel({ label: 'persisted-demo' });
+    second.mount(dom.window.document.body);
+    assert.ok(second.el.classList.contains('is-collapsed'));
+
+    second.destroy();
   });
 });
 
