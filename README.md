@@ -1,5 +1,7 @@
 # Statelight
 
+[![CI](https://github.com/ctkrug/statelight/actions/workflows/ci.yml/badge.svg)](https://github.com/ctkrug/statelight/actions/workflows/ci.yml)
+
 A floating debug panel for hand-rolled JavaScript state machines. Drop in one
 `<script>` tag next to any plain-object state machine — no framework, no
 build step, no library lock-in — and watch its current state and transition
