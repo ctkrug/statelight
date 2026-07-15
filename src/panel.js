@@ -77,7 +77,7 @@ export function createPanel({ label = 'State Machine', transitions } = {}) {
       .reverse()
       .forEach((item) => {
         const li = document.createElement('li');
-        li.textContent = String(item.state);
+        li.textContent = item.event ? `${item.state} · ${item.event}` : String(item.state);
         trailEl.appendChild(li);
       });
   }
