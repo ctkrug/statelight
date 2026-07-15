@@ -135,6 +135,32 @@ test('attach() mounts into a custom container when options.container is given', 
   }
 });
 
+test('attach() with options.stateKey watches a differently-named property and labels the panel from it', async () => {
+  const dom = new JSDOM('<!doctype html><html><body></body></html>');
+  global.document = dom.window.document;
+  global.window = dom.window;
+
+  try {
+    const { attach } = await import('../src/index.js');
+    const machine = { phase: 'idle', unrelated: 1 };
+
+    const handle = attach(machine, { stateKey: 'phase' });
+
+    assert.equal(dom.window.document.querySelector('.statelight-panel__label').textContent, 'phase');
+    assert.equal(dom.window.document.querySelector('.statelight-panel__state').textContent, 'idle');
+
+    machine.phase = 'running';
+
+    assert.equal(dom.window.document.querySelector('.statelight-panel__state').textContent, 'running');
+    assert.equal(handle.watcher.current, 'running');
+
+    handle.detach();
+  } finally {
+    delete global.document;
+    delete global.window;
+  }
+});
+
 test('attach() falls back to document.body when options.container is an explicit null (e.g. a failed querySelector)', async () => {
   const dom = new JSDOM('<!doctype html><html><body></body></html>');
   global.document = dom.window.document;
