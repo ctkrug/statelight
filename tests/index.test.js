@@ -75,3 +75,36 @@ test('attach() with a transitions map lights up the traversed edge as the machin
     delete global.window;
   }
 });
+
+test('attaching two machines produces independent panels; detaching one leaves the other intact', async () => {
+  const dom = new JSDOM('<!doctype html><html><body></body></html>');
+  global.document = dom.window.document;
+  global.window = dom.window;
+
+  try {
+    const { attach } = await import('../src/index.js');
+    const machineA = { state: 'idle' };
+    const machineB = { state: 'idle' };
+
+    const handleA = attach(machineA, { label: 'machine-a' });
+    const handleB = attach(machineB, { label: 'machine-b' });
+
+    assert.equal(dom.window.document.querySelectorAll('.statelight-panel').length, 2);
+
+    handleA.detach();
+    assert.equal(dom.window.document.querySelectorAll('.statelight-panel').length, 1);
+
+    machineB.state = 'running';
+    assert.equal(
+      handleB.panel.el.querySelector('.statelight-panel__state').textContent,
+      'running'
+    );
+    assert.equal(handleB.watcher.history().length, 2);
+
+    handleB.detach();
+    assert.equal(dom.window.document.querySelectorAll('.statelight-panel').length, 0);
+  } finally {
+    delete global.document;
+    delete global.window;
+  }
+});
