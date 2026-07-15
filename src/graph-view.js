@@ -2,6 +2,7 @@ import { buildTransitionGraph, layoutGraph } from './graph.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const NODE_RADIUS = 28;
+const SELF_LOOP_RADIUS = 16;
 let instanceCounter = 0;
 
 function svgEl(tag, attrs = {}) {
@@ -56,11 +57,12 @@ export function createGraphView(transitions) {
   for (const edge of edges) {
     const from = positions.get(edge.from);
     const to = positions.get(edge.to);
+    const isSelfLoop = edge.from === edge.to;
     const group = svgEl('g', { class: 'statelight-graph__edge', 'data-edge-id': edge.id });
     group.appendChild(
       svgEl('path', {
         class: 'statelight-graph__edge-line',
-        d: straightPath(from, to, NODE_RADIUS),
+        d: isSelfLoop ? selfLoopPath(from, NODE_RADIUS) : straightPath(from, to, NODE_RADIUS),
         'marker-end': `url(#${instanceId}-arrow)`
       })
     );
@@ -68,8 +70,8 @@ export function createGraphView(transitions) {
     if (edge.event) {
       const label = svgEl('text', {
         class: 'statelight-graph__edge-label',
-        x: (from.x + to.x) / 2,
-        y: (from.y + to.y) / 2 - 6
+        x: isSelfLoop ? from.x : (from.x + to.x) / 2,
+        y: isSelfLoop ? from.y - NODE_RADIUS - SELF_LOOP_RADIUS * 2 - 4 : (from.y + to.y) / 2 - 6
       });
       label.textContent = edge.event;
       group.appendChild(label);
@@ -107,4 +109,12 @@ function straightPath(from, to, nodeRadius) {
   const ux = dx / dist;
   const uy = dy / dist;
   return `M${from.x + ux * nodeRadius},${from.y + uy * nodeRadius} L${to.x - ux * nodeRadius},${to.y - uy * nodeRadius}`;
+}
+
+// A self-transition (from === to) has no second point to draw a line
+// toward, so it's rendered as a small loop arcing above the node instead.
+function selfLoopPath({ x, y }, nodeRadius) {
+  const top = y - nodeRadius;
+  const loopTop = top - SELF_LOOP_RADIUS * 2;
+  return `M${x - nodeRadius * 0.6},${top} C${x - nodeRadius * 0.6},${loopTop} ${x + nodeRadius * 0.6},${loopTop} ${x + nodeRadius * 0.6},${top}`;
 }
