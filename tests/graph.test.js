@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildTransitionGraph, edgeIdFor } from '../src/graph.js';
+import { buildTransitionGraph, edgeIdFor, layoutGraph } from '../src/graph.js';
 
 test('buildTransitionGraph extracts one node per referenced state', () => {
   const { nodes } = buildTransitionGraph({
@@ -51,4 +51,43 @@ test('buildTransitionGraph keeps a self-loop as a single edge', () => {
 test('edgeIdFor produces a stable, distinct id per from/event/to combination', () => {
   assert.equal(edgeIdFor('a', 'go', 'b'), 'a::go::b');
   assert.notEqual(edgeIdFor('a', 'go', 'b'), edgeIdFor('a', 'go', 'c'));
+});
+
+function distance(a, b) {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+for (const count of [2, 3, 5, 8, 12]) {
+  test(`layoutGraph places ${count} nodes with no overlapping circles`, () => {
+    const nodes = Array.from({ length: count }, (_, i) => `s${i}`);
+    const nodeRadius = 28;
+    const { positions, width, height } = layoutGraph(nodes, { nodeRadius });
+
+    assert.equal(positions.size, count);
+
+    const points = nodes.map((id) => positions.get(id));
+    for (let i = 0; i < points.length; i++) {
+      for (let j = i + 1; j < points.length; j++) {
+        assert.ok(
+          distance(points[i], points[j]) >= nodeRadius * 2 - 1e-9,
+          `nodes ${i} and ${j} overlap`
+        );
+      }
+      // every node stays within the reported bounds
+      assert.ok(points[i].x - nodeRadius >= 0 && points[i].x + nodeRadius <= width);
+      assert.ok(points[i].y - nodeRadius >= 0 && points[i].y + nodeRadius <= height);
+    }
+  });
+}
+
+test('layoutGraph handles zero nodes without producing NaN bounds', () => {
+  const { positions, width, height } = layoutGraph([]);
+  assert.equal(positions.size, 0);
+  assert.ok(Number.isFinite(width));
+  assert.ok(Number.isFinite(height));
+});
+
+test('layoutGraph centers a single node within its bounds', () => {
+  const { positions, width, height } = layoutGraph(['only']);
+  assert.deepEqual(positions.get('only'), { x: width / 2, y: height / 2 });
 });
