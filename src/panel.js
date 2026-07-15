@@ -1,5 +1,16 @@
+import { PANEL_CSS } from './styles.js';
+
 const PANEL_CLASS = 'statelight-panel';
+const STYLE_ID = 'statelight-styles';
 const TRAIL_LENGTH = 6;
+
+function ensureStyles() {
+  if (document.getElementById(STYLE_ID)) return;
+  const style = document.createElement('style');
+  style.id = STYLE_ID;
+  style.textContent = PANEL_CSS;
+  document.head.appendChild(style);
+}
 
 /**
  * Renders the floating debug panel: current state, a recent-transition
@@ -13,6 +24,8 @@ export function createPanel({ label = 'State Machine' } = {}) {
   if (typeof document === 'undefined') {
     throw new Error('Statelight.createPanel requires a DOM environment');
   }
+
+  ensureStyles();
 
   const root = document.createElement('div');
   root.className = PANEL_CLASS;

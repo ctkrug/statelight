@@ -1,7 +1,9 @@
-/*
- * Statelight panel — blueprint/technical direction.
- * Tokens mirror docs/DESIGN.md; keep the two files in sync.
- */
+// Single source of truth for the panel's CSS. Kept as a plain string (not a
+// .css file) so it can be injected at runtime with zero build step and,
+// separately, written out to dist/statelight.css by scripts/build.js for
+// consumers who'd rather link a stylesheet than accept an injected <style>.
+// Tokens mirror docs/DESIGN.md; keep the two in sync.
+export const PANEL_CSS = `
 .statelight-panel {
   --sl-bg: #0b1220;
   --sl-surface-1: #10192e;
@@ -111,3 +113,4 @@
     animation: none;
   }
 }
+`;
