@@ -6,7 +6,10 @@ import { makeDraggable } from './drag.js';
 const PANEL_CLASS = 'statelight-panel';
 const STYLE_ID = 'statelight-styles';
 const TRAIL_LENGTH = 6;
-const STACK_OFFSET_PX = 12;
+// Roughly one header's height, so a cascaded panel's header (label +
+// toggle) stays visible under the one on top of it instead of a sliver
+// too thin to read.
+const STACK_OFFSET_PX = 40;
 
 function ensureStyles() {
   if (document.getElementById(STYLE_ID)) return;
