@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Statelight — a live debug panel for hand-rolled state machines</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Drop one script tag next to any plain-object JavaScript state machine and watch its current state and transition path light up live."
+    />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <main>
+        <section class="hero">
+          <div class="hero__grid">
+            <div class="hero__copy">
+              <h1 class="wordmark">State<span class="wordmark__light" id="wordmark-light">light</span></h1>
+              <p class="hero__pitch">
+                Drop one script tag next to any hand-rolled JS state machine
+                and a floating panel shows its current state, lighting up
+                the transition path live as you interact.
+              </p>
+              <pre class="hero__snippet"><code>&lt;script type="module"&gt;
+  import { attach } from
+    'https://cdn.jsdelivr.net/npm/statelight/dist/statelight.js';
+
+  const machine = { state: 'idle' };
+
+  attach(machine, {
+    transitions: {
+      idle: { start: 'running' },
+      running: { stop: 'idle' }
+    }
+  });
+
+  // Anywhere in your own code, unmodified:
+  machine.state = 'running';
+&lt;/script&gt;</code></pre>
+              <div class="hero__links">
+                <a class="btn-link btn-link--primary" href="https://github.com/ctkrug/statelight#usage">
+                  Get started
+                </a>
+                <a class="btn-link" href="https://github.com/ctkrug/statelight">View on GitHub</a>
+              </div>
+            </div>
+            <div class="hero__demo">
+              <div class="demo-card">
+                <div class="demo-card__light-wrap">
+                  <span class="demo-card__light" id="demo-light"></span>
+                  <strong id="demo-label">red</strong>
+                </div>
+                <button type="button" class="demo-card__button" id="demo-advance">advance()</button>
+                <div class="demo-card__panel-host" id="demo-panel-host"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="how" id="how-it-works">
+          <h2>How it works</h2>
+          <ol class="how__steps">
+            <li class="how__step">
+              <span class="how__step-number">1</span>
+              <h3>Add one script tag</h3>
+              <p>No bundler, no npm install required to try it — import straight from a CDN.</p>
+            </li>
+            <li class="how__step">
+              <span class="how__step-number">2</span>
+              <h3>Call attach(machine)</h3>
+              <pre>attach(machine, { transitions });</pre>
+            </li>
+            <li class="how__step">
+              <span class="how__step-number">3</span>
+              <h3>Watch it light up</h3>
+              <p>Every assignment to <code>machine.state</code> updates the panel and pulses the live edge — instantly, with no polling.</p>
+            </li>
+          </ol>
+        </section>
+
+        <section class="features" id="features">
+          <h2>What you get</h2>
+          <ul class="features__list">
+            <li><span class="features__mark">&#9670;</span>Live transition graph with the active edge lit up as your machine moves through it.</li>
+            <li><span class="features__mark">&#9670;</span>Collapsible, draggable panel that remembers where you left it, per page.</li>
+            <li><span class="features__mark">&#9670;</span>Watch more than one machine on the same page — panels cascade instead of overlapping.</li>
+            <li><span class="features__mark">&#9670;</span>No dependencies, no build step, no framework lock-in — works with any plain object.</li>
+          </ul>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <span>MIT licensed</span>
+        <a href="https://github.com/ctkrug/statelight">github.com/ctkrug/statelight</a>
+      </footer>
+    </div>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
