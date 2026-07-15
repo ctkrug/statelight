@@ -83,6 +83,21 @@ test('createGraphView gives each panel instance its own unique arrow marker id',
   });
 });
 
+test('createGraphView renders a self-transition as a loop with a non-degenerate path', async () => {
+  await withDom(async () => {
+    const { createGraphView } = await import('../src/graph-view.js');
+    const view = createGraphView({ stuck: { retry: 'stuck' } });
+
+    const path = view.el.querySelector('.statelight-graph__edge-line').getAttribute('d');
+    assert.match(path, /^M[\d.]+,[\d.]+ C/);
+
+    const label = view.el.querySelector('.statelight-graph__edge-label');
+    assert.equal(label.textContent, 'retry');
+
+    view.destroy();
+  });
+});
+
 test('createGraphView is an SVG element sized from the layout', async () => {
   await withDom(async () => {
     const { createGraphView } = await import('../src/graph-view.js');
